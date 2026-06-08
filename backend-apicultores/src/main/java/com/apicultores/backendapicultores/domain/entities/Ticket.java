@@ -1,6 +1,6 @@
 package com.apicultores.backendapicultores.domain.entities;
 
-import com.apicultores.backendapicultores.domain.entities.enums.TicketStatus;
+import com.apicultores.backendapicultores.common.TicketStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,9 +27,10 @@ public class Ticket {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="seat_id", nullable = false)
     private Seat seat;
+
     @ManyToOne(fetch  = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
-    private UUID owner_id;
+    private User owner;
 
     @Column(name = "qr_code", nullable = false, unique = true, length = 255)
     private String qrCode;
