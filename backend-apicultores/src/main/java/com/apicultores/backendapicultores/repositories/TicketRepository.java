@@ -1,6 +1,6 @@
 package com.apicultores.backendapicultores.repositories;
 
-import com.apicultores.backendapicultores.model.Ticket;
+import com.apicultores.backendapicultores.domain.entities.Ticket;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
