@@ -19,7 +19,6 @@ public class TicketServiceImp implements TicketService {
     @Override
     @Transactional
     public TicketResponse createTicket(CreateTicketRequest request) {
-        Ticket ticket1 = ticketMapper.toEntityCreate(request);
         return TicketResponse.builder()
                 .valid(true)
                 .message("Ticket created successfully")
