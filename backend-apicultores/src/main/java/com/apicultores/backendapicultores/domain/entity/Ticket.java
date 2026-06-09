@@ -36,7 +36,7 @@ public class Ticket {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @GeneratedValue(strategy = GenerationType.UUID)
+    //@GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "qr_token")
     private UUID qrToken;
 

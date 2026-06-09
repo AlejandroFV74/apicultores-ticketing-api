@@ -3,6 +3,7 @@ package com.apicultores.backendapicultores.controller;
 import com.apicultores.backendapicultores.domain.dto.request.CreateTicketRequest;
 import com.apicultores.backendapicultores.domain.dto.response.TicketResponse;
 import com.apicultores.backendapicultores.service.TicketService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
