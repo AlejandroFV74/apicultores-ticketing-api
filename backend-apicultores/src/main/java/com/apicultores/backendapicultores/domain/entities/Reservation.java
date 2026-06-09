@@ -2,7 +2,6 @@ package com.apicultores.backendapicultores.domain.entities;
 
 import com.apicultores.backendapicultores.common.ReservationStatus;
 import jakarta.persistence.*;
-import jdk.jfr.Event;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,9 +33,6 @@ public class Reservation {
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
-    @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
-    private BigDecimal totalAmount;
-
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private ReservationStatus status;
@@ -59,10 +55,6 @@ public class Reservation {
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ReservationStatusHistory> statusHistory = new ArrayList<>();
-
-    @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL)
-    @Builder.Default
-    private List<Ticket> tickets = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

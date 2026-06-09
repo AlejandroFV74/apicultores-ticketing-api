@@ -33,7 +33,7 @@ public class Seat {
     private Event event;
 
     @Column(name = "seat_number", nullable = false)
-    private Integer seatNumber;
+    private String seatNumber;
 
     @Column(name = "seat_type", nullable = false, length = 20)
     @Enumerated(EnumType.STRING)

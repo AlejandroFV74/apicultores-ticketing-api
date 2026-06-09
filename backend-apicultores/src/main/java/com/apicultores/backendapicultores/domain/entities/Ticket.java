@@ -21,9 +21,11 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "ticket_id", updatable = false, nullable = false)
     private UUID ticket_id;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reservation_id", nullable = false)
-    private Reservation reservation;
+    @JoinColumn(name = "payment_id", nullable = false)
+    private Payment payment;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="seat_id", nullable = false)
     private Seat seat;

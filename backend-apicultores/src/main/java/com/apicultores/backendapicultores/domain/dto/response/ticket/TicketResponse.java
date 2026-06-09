@@ -16,7 +16,7 @@ public class TicketResponse {
     private TicketStatus status;
     private LocalDateTime usedAt;
     private LocalDateTime createdAt;
-    private Integer seatNumber;
+    private String seatNumber;
     private SeatType seatType;
     private String eventName;
     private LocalDateTime eventDate;

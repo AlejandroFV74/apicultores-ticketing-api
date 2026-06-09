@@ -1,9 +1,12 @@
 package com.apicultores.backendapicultores.common;
 
+import org.springframework.stereotype.Component;
+
 import java.time.LocalDateTime;
 
+@Component
 public class UtilsFunctions {
-    public String makeQRInfo(String username, Integer seat){
-        return username+seat.toString()+LocalDateTime.now();
+    public String makeQRInfo(String username, String seat){
+        return username+seat+LocalDateTime.now();
     }
 }

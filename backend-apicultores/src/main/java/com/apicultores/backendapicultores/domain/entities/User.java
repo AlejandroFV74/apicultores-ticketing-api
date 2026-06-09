@@ -1,21 +1,27 @@
 package com.apicultores.backendapicultores.domain.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-//just for reservation use
+import java.util.UUID;
+
+//just for reservation use and try
 @Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Table(name = "user")
+@Table(name = "users")
 public class User {
-    @Column(name = "name")
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "user_id")
+    private UUID id;
+
+    @Column(name = "full_name")
     private String name;
 }

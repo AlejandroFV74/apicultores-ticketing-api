@@ -11,7 +11,7 @@ public class StatusValidationStep implements TicketValidationStep {
 
     @Override
     public void validate(Ticket ticket) {
-        if (ticket.getStatus() != TicketStatus.ACTIVE){
+        if (ticket.getStatus() != TicketStatus.PAID){
             throw new TicketStatusException("El ticket no tiene un estado válid: " + ticket.getStatus());
         }
     }
