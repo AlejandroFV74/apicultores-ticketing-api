@@ -1,5 +1,6 @@
 package com.apicultores.backendapicultores.domain.entities;
 
+import com.apicultores.backendapicultores.common.ReservationStatus;
 import jakarta.persistence.*;
 import jdk.jfr.Event;
 import lombok.AllArgsConstructor;
@@ -36,8 +37,9 @@ public class Reservation {
     @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
-    @Column(name = "status", nullable = false, length = 20)
-    private String status;
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ReservationStatus status;
 
     @Column(name = "expires_at", nullable = false)
     private LocalDateTime expiresAt;

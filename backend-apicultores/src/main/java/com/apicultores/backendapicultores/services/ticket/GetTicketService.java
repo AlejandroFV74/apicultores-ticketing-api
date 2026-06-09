@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class getTicketService {
+public class GetTicketService {
     private final TicketRepository ticketRepository;
     private final TicketMapper ticketMapper;
 
