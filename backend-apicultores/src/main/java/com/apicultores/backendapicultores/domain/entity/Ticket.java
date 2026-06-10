@@ -37,10 +37,10 @@ public class Ticket {
     private User owner;
 
     //@GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "qr_token")
+    @Column(name = "qr_code")
     private UUID qrToken;
 
-    @Column(name = "seat_status")
+    @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private TicketStatus ticketStatus;
 
