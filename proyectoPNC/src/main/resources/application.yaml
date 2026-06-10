@@ -73,7 +73,6 @@ security:
 # Admin Default
 admin:
   default:
-    enabled: false
+
     email: ${DEFAULT_ADMIN_EMAIL}
-    password: ${DEFAULT_ADMIN_PASSWORD}
-    full-name: System Administrator
+
