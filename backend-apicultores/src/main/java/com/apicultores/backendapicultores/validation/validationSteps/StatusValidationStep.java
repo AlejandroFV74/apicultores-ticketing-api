@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class StatusValidationStep implements TicketValidationStep {
-
+    //CAMBIAR POR ESTADO DE PAYMENT CUANDO ESTE IMPLEMENTADO
     @Override
     public void validate(Ticket ticket) {
         if (ticket.getStatus() != TicketStatus.PAID){

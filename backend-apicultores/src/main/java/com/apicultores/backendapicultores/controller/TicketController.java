@@ -1,7 +1,9 @@
 package com.apicultores.backendapicultores.controller;
 
 import com.apicultores.backendapicultores.domain.dto.request.CreateTicketRequest;
+import com.apicultores.backendapicultores.domain.dto.request.RefundTicketRequest;
 import com.apicultores.backendapicultores.domain.dto.response.GeneralResponse;
+import com.apicultores.backendapicultores.services.ticket.CancelOrRefundTicketService;
 import com.apicultores.backendapicultores.services.ticket.CreateTicketService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,7 @@ import java.time.LocalDateTime;
 public class TicketController {
 
     private final CreateTicketService createTicketService;
+    private final CancelOrRefundTicketService cancelOrRefundTicketService;
 
     @PostMapping("/generate")
     public ResponseEntity<GeneralResponse> generateTicket(@RequestBody CreateTicketRequest request){
@@ -30,6 +33,14 @@ public class TicketController {
         );
     }
 
+    @PostMapping("/cancel-refund")
+    public ResponseEntity<GeneralResponse> cancelAndRefundTicket(@RequestBody RefundTicketRequest request){
+        return buildResponse(
+                "El ticket ha sido cancelado y reembolsado con éxito",
+                HttpStatus.OK,
+                cancelOrRefundTicketService.cancelAndRefund(request)
+        );
+    }
 
 
 
