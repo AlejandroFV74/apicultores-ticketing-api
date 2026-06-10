@@ -32,19 +32,37 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse register(RegisterRequest request) {
+        if (request.getFullName() == null || request.getFullName().trim().isEmpty()) {
+            throw new BadRequestException("El nombre completo es requerido");
+        }
+
+        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+            throw new BadRequestException("El email es requerido");
+        }
+
+        if (request.getPassword() == null || request.getPassword().length() < 6) {
+            throw new BadRequestException("La contraseña debe tener al menos 6 caracteres");
+        }
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new BadRequestException("El email ya está registrado");
         }
+
         Role role = request.getRole() != null ? request.getRole() : Role.BUYER;
 
+        if (role == Role.ADMIN) {
+            throw new BadRequestException("No se puede registrar como ADMIN");
+        }
         User user = User.builder()
                 .fullName(request.getFullName())
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
+                .role(role)
                 .build();
 
         User savedUser = userRepository.save(user);
         log.info("Nuevo usuario registrado: {} con rol: {}", savedUser.getEmail(), savedUser.getRole());
+
+        // Generar token
         String token = jwtUtil.generateToken(savedUser.getUserId(), savedUser.getEmail(), savedUser.getRole().name());
 
         return AuthResponse.builder()
