@@ -1,4 +1,4 @@
-package com.apicultores.backendapicultores.exceptions;
+package com.apicultores.backendapicultores.exception.custom;
 
 public class TicketNotFoundException extends RuntimeException {
     public TicketNotFoundException(String message) {

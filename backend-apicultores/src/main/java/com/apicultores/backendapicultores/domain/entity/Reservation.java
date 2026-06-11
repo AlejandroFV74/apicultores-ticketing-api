@@ -1,12 +1,12 @@
-package com.apicultores.backendapicultores.domain.entities;
+package com.apicultores.backendapicultores.domain.entity;
 
-import com.apicultores.backendapicultores.common.ReservationStatus;
+import com.apicultores.backendapicultores.common.enums.ReservationStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.math.BigDecimal;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

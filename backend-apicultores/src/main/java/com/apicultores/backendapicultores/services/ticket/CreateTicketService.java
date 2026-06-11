@@ -1,20 +1,20 @@
 package com.apicultores.backendapicultores.services.ticket;
 
-import com.apicultores.backendapicultores.common.ReservationStatus;
-import com.apicultores.backendapicultores.common.UtilsFunctions;
+import com.apicultores.backendapicultores.common.enums.ReservationStatus;
+import com.apicultores.backendapicultores.common.util.UtilsFunctions;
 import com.apicultores.backendapicultores.common.mappers.TicketMapper;
 import com.apicultores.backendapicultores.domain.dto.request.CreateTicketRequest;
 import com.apicultores.backendapicultores.domain.dto.response.ticket.TicketResponse;
-import com.apicultores.backendapicultores.domain.entities.Payment;
-import com.apicultores.backendapicultores.domain.entities.Reservation;
-import com.apicultores.backendapicultores.domain.entities.Seat;
-import com.apicultores.backendapicultores.domain.entities.Ticket;
-import com.apicultores.backendapicultores.exceptions.EmptySeatsReservationException;
-import com.apicultores.backendapicultores.exceptions.ReservationNotFoundException;
-import com.apicultores.backendapicultores.exceptions.ReservationStatusException;
-import com.apicultores.backendapicultores.repositories.PaymentRepository;
-import com.apicultores.backendapicultores.repositories.ReservationRepository;
-import com.apicultores.backendapicultores.repositories.TicketRepository;
+import com.apicultores.backendapicultores.domain.entity.Payment;
+import com.apicultores.backendapicultores.domain.entity.Reservation;
+import com.apicultores.backendapicultores.domain.entity.Seat;
+import com.apicultores.backendapicultores.domain.entity.Ticket;
+import com.apicultores.backendapicultores.exception.custom.EmptySeatsReservationException;
+import com.apicultores.backendapicultores.exception.custom.ReservationNotFoundException;
+import com.apicultores.backendapicultores.exception.custom.ReservationStatusException;
+import com.apicultores.backendapicultores.repository.PaymentRepository;
+import com.apicultores.backendapicultores.repository.ReservationRepository;
+import com.apicultores.backendapicultores.repository.TicketRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

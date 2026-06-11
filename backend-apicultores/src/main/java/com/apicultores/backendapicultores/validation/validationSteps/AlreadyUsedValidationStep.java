@@ -1,8 +1,8 @@
 package com.apicultores.backendapicultores.validation.validationSteps;
 
-import com.apicultores.backendapicultores.exceptions.TicketStatusException;
-import com.apicultores.backendapicultores.domain.entities.Ticket;
-import com.apicultores.backendapicultores.common.TicketStatus;
+import com.apicultores.backendapicultores.exception.custom.TicketStatusException;
+import com.apicultores.backendapicultores.domain.entity.Ticket;
+import com.apicultores.backendapicultores.common.enums.TicketStatus;
 import com.apicultores.backendapicultores.validation.TicketValidationStep;
 
 public class AlreadyUsedValidationStep implements TicketValidationStep {

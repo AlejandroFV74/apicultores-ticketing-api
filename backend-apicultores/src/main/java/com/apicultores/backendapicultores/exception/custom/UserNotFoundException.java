@@ -1,4 +1,4 @@
-package com.apicultores.backendapicultores.exceptions;
+package com.apicultores.backendapicultores.exception.custom;
 
 public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException(String message) {

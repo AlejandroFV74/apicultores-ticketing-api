@@ -1,4 +1,4 @@
-package com.apicultores.backendapicultores.common;
+package com.apicultores.backendapicultores.common.util;
 
 import org.springframework.stereotype.Component;
 

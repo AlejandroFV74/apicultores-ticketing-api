@@ -1,4 +1,4 @@
-package com.apicultores.backendapicultores.domain.entities;
+package com.apicultores.backendapicultores.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

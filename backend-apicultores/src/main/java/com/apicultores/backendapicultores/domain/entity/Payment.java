@@ -1,9 +1,8 @@
-package com.apicultores.backendapicultores.domain.entities;
+package com.apicultores.backendapicultores.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+
 import java.util.UUID;
 
 //Just for a usage to try;

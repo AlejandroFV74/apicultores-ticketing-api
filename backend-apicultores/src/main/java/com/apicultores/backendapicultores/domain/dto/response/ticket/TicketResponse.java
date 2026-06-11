@@ -1,7 +1,7 @@
 package com.apicultores.backendapicultores.domain.dto.response.ticket;
 
-import com.apicultores.backendapicultores.common.SeatType;
-import com.apicultores.backendapicultores.common.TicketStatus;
+import com.apicultores.backendapicultores.common.enums.SeatType;
+import com.apicultores.backendapicultores.common.enums.TicketStatus;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.util.UUID;

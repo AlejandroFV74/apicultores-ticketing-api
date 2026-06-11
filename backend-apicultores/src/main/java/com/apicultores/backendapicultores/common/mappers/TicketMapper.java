@@ -1,12 +1,11 @@
 package com.apicultores.backendapicultores.common.mappers;
 
-import com.apicultores.backendapicultores.common.TicketStatus;
-import com.apicultores.backendapicultores.domain.dto.request.CreateTicketRequest;
+import com.apicultores.backendapicultores.common.enums.TicketStatus;
 import com.apicultores.backendapicultores.domain.dto.response.ticket.TicketResponse;
-import com.apicultores.backendapicultores.domain.entities.Payment;
-import com.apicultores.backendapicultores.domain.entities.Reservation;
-import com.apicultores.backendapicultores.domain.entities.Seat;
-import com.apicultores.backendapicultores.domain.entities.Ticket;
+import com.apicultores.backendapicultores.domain.entity.Payment;
+import com.apicultores.backendapicultores.domain.entity.Reservation;
+import com.apicultores.backendapicultores.domain.entity.Seat;
+import com.apicultores.backendapicultores.domain.entity.Ticket;
 import org.springframework.stereotype.Component;
 
 @Component

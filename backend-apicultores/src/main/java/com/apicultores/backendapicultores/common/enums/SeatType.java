@@ -1,4 +1,4 @@
-package com.apicultores.backendapicultores.common;
+package com.apicultores.backendapicultores.common.enums;
 
 public enum SeatType {
     VIP, GENERAL, PREFERENCIAL

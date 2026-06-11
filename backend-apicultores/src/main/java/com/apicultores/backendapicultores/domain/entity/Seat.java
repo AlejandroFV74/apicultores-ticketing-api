@@ -1,7 +1,7 @@
-package com.apicultores.backendapicultores.domain.entities;
+package com.apicultores.backendapicultores.domain.entity;
 
-import com.apicultores.backendapicultores.common.SeatStatus;
-import com.apicultores.backendapicultores.common.SeatType;
+import com.apicultores.backendapicultores.common.enums.SeatStatus;
+import com.apicultores.backendapicultores.common.enums.SeatType;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;

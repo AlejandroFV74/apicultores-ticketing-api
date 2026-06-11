@@ -1,4 +1,4 @@
-package com.apicultores.backendapicultores.exceptions;
+package com.apicultores.backendapicultores.exception.custom;
 
 public class TicketStatusException extends RuntimeException {
     public TicketStatusException(String message) {

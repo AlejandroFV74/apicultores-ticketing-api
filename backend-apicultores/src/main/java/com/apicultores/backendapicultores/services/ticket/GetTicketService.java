@@ -2,9 +2,9 @@ package com.apicultores.backendapicultores.services.ticket;
 
 import com.apicultores.backendapicultores.common.mappers.TicketMapper;
 import com.apicultores.backendapicultores.domain.dto.response.ticket.TicketResponse;
-import com.apicultores.backendapicultores.domain.entities.Ticket;
-import com.apicultores.backendapicultores.exceptions.TicketNotFoundException;
-import com.apicultores.backendapicultores.repositories.TicketRepository;
+import com.apicultores.backendapicultores.domain.entity.Ticket;
+import com.apicultores.backendapicultores.exception.custom.TicketNotFoundException;
+import com.apicultores.backendapicultores.repository.TicketRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

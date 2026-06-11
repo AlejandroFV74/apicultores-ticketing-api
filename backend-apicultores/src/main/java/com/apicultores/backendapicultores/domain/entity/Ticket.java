@@ -1,6 +1,6 @@
-package com.apicultores.backendapicultores.domain.entities;
+package com.apicultores.backendapicultores.domain.entity;
 
-import com.apicultores.backendapicultores.common.TicketStatus;
+import com.apicultores.backendapicultores.common.enums.TicketStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

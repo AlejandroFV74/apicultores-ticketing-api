@@ -1,7 +1,8 @@
-package com.apicultores.backendapicultores.exceptions;
+package com.apicultores.backendapicultores.exception.handler;
 
 import com.apicultores.backendapicultores.domain.dto.response.ApiErrorResponse;
 
+import com.apicultores.backendapicultores.exception.custom.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

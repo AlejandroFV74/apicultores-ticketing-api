@@ -1,9 +1,9 @@
 package com.apicultores.backendapicultores.services;
 
-import com.apicultores.backendapicultores.exceptions.TicketNotFoundException;
-import com.apicultores.backendapicultores.domain.entities.Ticket;
-import com.apicultores.backendapicultores.common.TicketStatus;
-import com.apicultores.backendapicultores.repositories.TicketRepository;
+import com.apicultores.backendapicultores.exception.custom.TicketNotFoundException;
+import com.apicultores.backendapicultores.domain.entity.Ticket;
+import com.apicultores.backendapicultores.common.enums.TicketStatus;
+import com.apicultores.backendapicultores.repository.TicketRepository;
 import com.apicultores.backendapicultores.validation.TicketValidationStep;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
