@@ -1,14 +1,14 @@
-package com.example.proyectopnc.services.impl;
+package com.apicultores.backendapicultores.service.impl;
 
-import com.example.proyectopnc.dto.request.UpdateRoleRequest;
-import com.example.proyectopnc.dto.request.UpdateUserRequest;
-import com.example.proyectopnc.dto.response.UserResponse;
-import com.example.proyectopnc.enums.Role;
-import com.example.proyectopnc.exception.BadRequestException;
-import com.example.proyectopnc.exception.ResourceNotFoundException;
-import com.example.proyectopnc.model.User;
-import com.example.proyectopnc.repositories.UserRepository;
-import com.example.proyectopnc.services.UserService;
+import com.apicultores.backendapicultores.domain.dto.request.UpdateRoleRequest;
+import com.apicultores.backendapicultores.domain.dto.request.UpdateUserRequest;
+import com.apicultores.backendapicultores.domain.dto.response.UserResponse;
+import com.apicultores.backendapicultores.common.enums.Role;
+import com.apicultores.backendapicultores.exception.custom.BadRequestException;
+import com.apicultores.backendapicultores.exception.custom.ResourceNotFoundException;
+import com.apicultores.backendapicultores.domain.entity.User;
+import com.apicultores.backendapicultores.repository.UserRepository;
+import com.apicultores.backendapicultores.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
