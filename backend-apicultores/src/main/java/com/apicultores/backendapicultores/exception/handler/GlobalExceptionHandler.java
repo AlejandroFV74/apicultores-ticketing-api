@@ -4,6 +4,7 @@ import com.apicultores.backendapicultores.exception.custom.BadRequestException;
 import com.apicultores.backendapicultores.exception.custom.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import com.apicultores.backendapicultores.exception.response.ErrorResponse;
@@ -83,6 +84,16 @@ public class GlobalExceptionHandler {
                 .path(getPath())
                 .build();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidJson(HttpMessageNotReadableException ex) {
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", 400);
+        response.put("error", "Bad Request");
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     private String getPath() {
