@@ -18,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Locale;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -36,14 +38,15 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException("El nombre completo es requerido");
         }
 
-        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+        String email = normalizeEmail(request.getEmail());
+        if (email.isEmpty()) {
             throw new BadRequestException("El email es requerido");
         }
 
         if (request.getPassword() == null || request.getPassword().length() < 6) {
             throw new BadRequestException("La contraseña debe tener al menos 6 caracteres");
         }
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(email)) {
             throw new BadRequestException("El email ya está registrado");
         }
 
@@ -53,8 +56,8 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException("No se puede registrar como ADMIN");
         }
         User user = User.builder()
-                .fullName(request.getFullName())
-                .email(request.getEmail())
+                .fullName(request.getFullName().trim())
+                .email(email)
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .role(role)
                 .build();
@@ -77,12 +80,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest request) {
+        String email = normalizeEmail(request.getEmail());
         try {
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+                    new UsernamePasswordAuthenticationToken(email, request.getPassword())
             );
 
-            userService.recordSuccessfulLogin(request.getEmail());
+            userService.recordSuccessfulLogin(email);
 
             User user = (User) authentication.getPrincipal();
 
@@ -100,9 +104,13 @@ public class AuthServiceImpl implements AuthService {
                     .build();
 
         } catch (BadCredentialsException e) {
-            userService.recordFailedLoginAttempt(request.getEmail());
-            log.warn("Intento de login fallido para: {}", request.getEmail());
+            userService.recordFailedLoginAttempt(email);
+            log.warn("Intento de login fallido para: {}", email);
             throw new BadCredentialsException("Credenciales inválidas");
         }
+    }
+
+    private String normalizeEmail(String email) {
+        return email == null ? "" : email.trim().toLowerCase(Locale.ROOT);
     }
 }
