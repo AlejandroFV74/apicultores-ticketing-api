@@ -120,6 +120,12 @@ public class EventServiceImpl implements EventService {
         Event event = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
+        UUID userId = currentUserProvider.getCurrentUserId();
+
+        if (!event.getOrganizerId().equals(userId)) {
+            throw new BadRequestException("No tienes permiso para modificar este evento");
+        }
+
         return mapper.toDto(repository.save(mapper.toEntityUpdate(request, event)));
     }
 
@@ -129,8 +135,43 @@ public class EventServiceImpl implements EventService {
         Event event = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
-        repository.delete(event);
+        UUID userId = currentUserProvider.getCurrentUserId();
 
+        if (!event.getOrganizerId().equals(userId)) {
+            throw new BadRequestException("No tienes permiso para eliminar este evento");
+        }
+
+        repository.delete(event);
+    }
+
+    @Override
+    public List<EventResponse> getMyEvents() {
+
+        UUID userId = currentUserProvider.getCurrentUserId();
+
+        List<Event> events = repository.findByOrganizerId(userId);
+
+        if (events.isEmpty()) {
+            throw new ResourceNotFoundException("No events found for this organizer");
+        }
+
+        return events.stream()
+                .map(mapper::toDto)
+                .toList();
+    }
+
+    @Override
+    public List<EventResponse> searchByTitle(String title) {
+
+        List<Event> events = repository.findByTitleContainingIgnoreCase(title);
+
+        if (events.isEmpty()) {
+            throw new ResourceNotFoundException("No events found with that title");
+        }
+
+        return events.stream()
+                .map(mapper::toDto)
+                .toList();
     }
 
 }

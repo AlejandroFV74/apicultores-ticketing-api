@@ -18,4 +18,8 @@ public interface EventService {
 
     void deleteEvent(UUID id);
 
+    List<EventResponse> getMyEvents();
+
+    List<EventResponse> searchByTitle(String title);
+
 }

@@ -49,6 +49,21 @@ public class EventController {
         return ResponseEntity.ok(event);
     }
 
+
+    @PreAuthorize("hasRole('ORGANIZER')")
+    @GetMapping("/my-events")
+    public ResponseEntity<List<EventResponse>> getMyEvents() {
+        return ResponseEntity.ok(service.getMyEvents());
+    }
+
+
+    @GetMapping("/search")
+    public ResponseEntity<List<EventResponse>> searchByTitle(
+            @RequestParam String title) {
+        return ResponseEntity.ok(service.searchByTitle(title));
+    }
+
+
     @PreAuthorize("hasRole('ORGANIZER')")
     @PutMapping("/{id}")
     public ResponseEntity<EventResponse> update(
