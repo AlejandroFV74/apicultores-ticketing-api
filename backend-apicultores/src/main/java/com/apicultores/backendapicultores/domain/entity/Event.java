@@ -1,28 +1,45 @@
 package com.apicultores.backendapicultores.domain.entity;
 
+
+import com.apicultores.backendapicultores.common.enums.EventStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-//just for the usage in seat and try
-@Data
 @Entity
+@Table(name = "event")
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Table(name = "event")
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "event_id", updatable = false, nullable = false)
+    @Column(name = "event_id")
     private UUID eventId;
 
-    private String title;
+    @Column(name = "organizer_id", nullable = false)
+    private UUID organizerId;
 
+    private String title;
+    private String description;
+    private String venue;
+
+    @Column(name = "start_date")
     private LocalDateTime startDate;
+
+    @Column(name = "end_date")
+    private LocalDateTime endDate;
+
+    @Enumerated(EnumType.STRING)
+    private EventStatus status;
+
+    @Column(name = "max_tickets_per_user")
+    private Integer maxTicketsPerUser;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 }
