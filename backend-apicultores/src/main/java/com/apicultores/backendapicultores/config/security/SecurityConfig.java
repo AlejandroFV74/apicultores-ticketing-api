@@ -48,8 +48,8 @@ public class SecurityConfig {
                                 "/api/events",
                                 "/api/events/search",
                                 "/api/events/*",
-                                //Solo para probarlo
-                                "/api/tickets"
+                                "/api/tickets",
+                                "/api/tickets/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

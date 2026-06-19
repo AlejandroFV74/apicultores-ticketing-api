@@ -60,11 +60,11 @@ public class TicketController {
     }
 
     @GetMapping("/owner/{owner_id}")
-    public ResponseEntity<GeneralResponse> getTicketByOwner(@RequestParam(required = true) UUID owner_id){
+    public ResponseEntity<GeneralResponse> getTicketByOwner(@PathVariable(required = true) UUID owner_id){
         return buildResponse(
                 "Se han obtenido el ticket",
                 HttpStatus.OK,
-                getTicketService.getTicketsByOwner(owner_id)
+                getTicketService.getTicketsByOwnerId(owner_id)
         );
     }
 
