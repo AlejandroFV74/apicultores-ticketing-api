@@ -1,5 +1,6 @@
 package com.apicultores.backendapicultores.services.ticket;
 
+import com.apicultores.backendapicultores.common.enums.PaymentStatus;
 import com.apicultores.backendapicultores.common.enums.TicketStatus;
 import com.apicultores.backendapicultores.common.mappers.TicketMapper;
 import com.apicultores.backendapicultores.domain.dto.request.RefundTicketRequest;
@@ -38,13 +39,13 @@ public class CancelOrRefundTicketService {
         Payment payment = ticket.getPayment();
 
         ticket.setStatus(TicketStatus.REFUNDED);
+        payment.setStatus(PaymentStatus.REFUNDED);
+        paymentRepository.save(payment);
         ticketRepository.save(ticket);
-
-        //Añadir el status del payment a REFUNDED cuando este implementado
 
         Refund refund = Refund.builder()
                 .payment(payment)
-                .amount(request.getAmount())
+                .amount(payment.getAmount())
                 .reason(request.getReason())
                 .build();
 

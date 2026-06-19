@@ -10,6 +10,7 @@ import com.apicultores.backendapicultores.domain.entity.Reservation;
 import com.apicultores.backendapicultores.domain.entity.Seat;
 import com.apicultores.backendapicultores.domain.entity.Ticket;
 import com.apicultores.backendapicultores.exception.custom.EmptySeatsReservationException;
+import com.apicultores.backendapicultores.exception.custom.LimitSeatsException;
 import com.apicultores.backendapicultores.exception.custom.ReservationNotFoundException;
 import com.apicultores.backendapicultores.exception.custom.ReservationStatusException;
 import com.apicultores.backendapicultores.repository.PaymentRepository;
@@ -44,8 +45,12 @@ public class CreateTicketService {
         }
 
         List<Seat> associatedSeats = reservation.getSeats();
+
         if(associatedSeats.isEmpty()){
             throw new EmptySeatsReservationException("La reserva no contiene asientos");
+        }
+        if (associatedSeats.size() > 3){
+            throw new LimitSeatsException("No se pueden reservar más de 3 asientos para el evento");
         }
 
         List<TicketResponse> ticketResponsesList = new ArrayList<>();
