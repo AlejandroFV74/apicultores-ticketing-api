@@ -47,7 +47,9 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/api/events",
                                 "/api/events/search",
-                                "/api/events/*"
+                                "/api/events/*",
+                                //Solo para probarlo
+                                "/api/tickets"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -78,8 +80,9 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userService);
+        //Modificar esto si da problemas, quitar el parametro
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userService);
+        //authProvider.setUserDetailsService(userService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }

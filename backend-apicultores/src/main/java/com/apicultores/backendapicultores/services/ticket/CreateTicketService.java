@@ -51,7 +51,7 @@ public class CreateTicketService {
         List<TicketResponse> ticketResponsesList = new ArrayList<>();
 
         for (Seat seat : associatedSeats){
-            String QrTicket = functions.makeQRInfo(reservation.getUser().getName(),seat.getSeatNumber());
+            String QrTicket = functions.makeQRInfo(reservation.getUser().getUsername(),seat.getSeatNumber());
 
             Ticket newTicket = ticketMapper.toEntityCreate(reservation,payment,seat,QrTicket);
 

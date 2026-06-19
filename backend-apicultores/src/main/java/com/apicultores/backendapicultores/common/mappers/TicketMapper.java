@@ -31,7 +31,7 @@ public class TicketMapper {
                 .seatType(ticket.getSeat().getSeatType())
                 .eventName(ticket.getSeat().getEvent().getTitle())
                 .eventDate(ticket.getSeat().getEvent().getStartDate())
-                .ownerName(ticket.getOwner().getName())
+                .ownerName(ticket.getOwner().getUsername())
                 .build();
     }
 }

@@ -47,7 +47,7 @@ public class User implements UserDetails {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "enabled", nullable = false)
+    @Column(name = "enabled", nullable = false, columnDefinition = "boolean default true")
     @Builder.Default
     private Boolean enabled = true;
 
@@ -58,7 +58,7 @@ public class User implements UserDetails {
     @Builder.Default
     private Integer failedAttempts = 0;
 
-    @Column(name = "account_non_locked", nullable = false)
+    @Column(name = "account_non_locked", nullable = false, columnDefinition = "boolean default true")
     @Builder.Default
     private Boolean accountNonLocked = true;
 

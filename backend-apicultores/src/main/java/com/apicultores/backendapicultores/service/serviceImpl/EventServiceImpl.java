@@ -78,7 +78,7 @@ public class EventServiceImpl implements EventService {
             for (int i = 1; i <= seatConfig.getQuantity(); i++) {
 
                 Seat seat = Seat.builder()
-                        .eventId(savedEvent.getEventId())
+                        .event(savedEvent)
                         .seatNumber(seatConfig.getSeatType().name() + "-" + i)
                         .seatType(seatConfig.getSeatType())
                         .price(seatConfig.getPrice())

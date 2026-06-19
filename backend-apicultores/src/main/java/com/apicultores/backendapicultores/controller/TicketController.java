@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/v1/tickets")
+@RequestMapping("/api/tickets")
 @AllArgsConstructor
 public class TicketController {
 
@@ -42,22 +42,21 @@ public class TicketController {
         );
     }
 
-    @GetMapping("/{ticket_id}")
-    public ResponseEntity<GeneralResponse> getTickets(@RequestParam(required = false) UUID ticket_id){
-
-        if (ticket_id == null){
+    @GetMapping()
+    public ResponseEntity<GeneralResponse> getTickets(){
             return buildResponse(
                     "Se han obtenido los tickets",
                     HttpStatus.OK,
                     getTicketService.getAllTickets()
             );
-        }
 
+        /*
         return buildResponse(
                 "Se han obtenido el ticket",
                 HttpStatus.OK,
                 getTicketService.getTicketById(ticket_id)
         );
+        */
     }
 
     @GetMapping("/owner/{owner_id}")
