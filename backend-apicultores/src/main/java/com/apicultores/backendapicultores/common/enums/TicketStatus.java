@@ -1,7 +1,5 @@
 package com.apicultores.backendapicultores.common.enums;
 
-public enum SeatType {
-    VIP,
-    GENERAL,
-  PREFERENCIAL
+public enum TicketStatus {
+    PAID,USED,REFUNDED
 }

@@ -1,4 +1,5 @@
 package com.apicultores.backendapicultores.repository;
+
 import com.apicultores.backendapicultores.domain.entity.User;
 import com.apicultores.backendapicultores.common.enums.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +11,7 @@ import java.util.UUID;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
+
     Optional<User> findByEmail(String email);
     boolean existsByEmail(String email);
     List<User> findByRole(Role role);

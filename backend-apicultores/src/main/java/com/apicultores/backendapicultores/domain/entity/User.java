@@ -1,5 +1,6 @@
 package com.apicultores.backendapicultores.domain.entity;
 
+
 import com.apicultores.backendapicultores.common.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
