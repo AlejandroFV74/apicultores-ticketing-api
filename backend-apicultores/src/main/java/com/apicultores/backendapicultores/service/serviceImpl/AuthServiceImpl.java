@@ -2,10 +2,12 @@ package com.apicultores.backendapicultores.service.serviceImpl;
 import com.apicultores.backendapicultores.config.security.JwtUtil;
 import com.apicultores.backendapicultores.domain.dto.request.LoginRequest;
 import com.apicultores.backendapicultores.domain.dto.request.RegisterRequest;
+import com.apicultores.backendapicultores.domain.dto.request.UpdatePasswordRequest;
 import com.apicultores.backendapicultores.domain.dto.response.AuthResponse;
 import com.apicultores.backendapicultores.domain.entity.User;
 import com.apicultores.backendapicultores.common.enums.Role;
 import com.apicultores.backendapicultores.exception.custom.BadRequestException;
+import com.apicultores.backendapicultores.exception.custom.ResourceNotFoundException;
 import com.apicultores.backendapicultores.repository.UserRepository;
 import com.apicultores.backendapicultores.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -112,5 +114,27 @@ public class AuthServiceImpl implements AuthService {
 
     private String normalizeEmail(String email) {
         return email == null ? "" : email.trim().toLowerCase(Locale.ROOT);
+    }
+
+    @Override
+    @Transactional
+    public void updatePassword(String email, UpdatePasswordRequest request) {
+        String normalizedEmail = normalizeEmail(email);
+
+        User user = userRepository.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Usuario no encontrado con email: " + normalizedEmail
+                ));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new BadCredentialsException("Contraseña actual inválida");
+        }
+
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+            throw new BadRequestException("La nueva contraseña debe ser diferente a la actual");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 }

@@ -1,9 +1,6 @@
 package com.apicultores.backendapicultores.controller;
 
-import com.apicultores.backendapicultores.domain.dto.request.LoginRequest;
-import com.apicultores.backendapicultores.domain.dto.request.RegisterRequest;
-import com.apicultores.backendapicultores.domain.dto.request.UpdateRoleRequest;
-import com.apicultores.backendapicultores.domain.dto.request.UpdateUserRequest;
+import com.apicultores.backendapicultores.domain.dto.request.*;
 import com.apicultores.backendapicultores.domain.dto.response.AuthResponse;
 import com.apicultores.backendapicultores.domain.dto.response.UserResponse;
 import com.apicultores.backendapicultores.common.enums.Role;
@@ -50,6 +47,16 @@ public class AuthController {
         String email = authentication.getName();
         UserResponse response = userService.getUserByEmail(email);
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/password")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> updatePassword(
+            Authentication authentication,
+            @Valid @RequestBody UpdatePasswordRequest request
+    ) {
+        authService.updatePassword(authentication.getName(), request);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/health")
