@@ -92,13 +92,13 @@ public class AuthController {
         return ResponseEntity.ok(stats);
     }
 
-    @PutMapping("/users/{userId}/disable")
+    @PutMapping("/users/disable/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> disableUser(@PathVariable UUID userId) {
         return ResponseEntity.ok(userService.disableUser(userId));
     }
 
-    @PutMapping("/users/{userId}/enable")
+    @PutMapping("/users/enable/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> enableUser(@PathVariable UUID userId) {
         return ResponseEntity.ok(userService.enableUser(userId));
@@ -111,7 +111,7 @@ public class AuthController {
         return ResponseEntity.ok(userService.updateUser(userId, request));
     }
 
-    @PutMapping("/users/{userId}/role")
+    @PutMapping("/users/role/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> updateUserRole(
             @PathVariable UUID userId,
