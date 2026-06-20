@@ -1,6 +1,7 @@
 package com.apicultores.backendapicultores.services.ticket;
 
 import com.apicultores.backendapicultores.common.enums.ReservationStatus;
+import com.apicultores.backendapicultores.common.util.BusinessConst;
 import com.apicultores.backendapicultores.common.util.UtilsFunctions;
 import com.apicultores.backendapicultores.common.mappers.TicketMapper;
 import com.apicultores.backendapicultores.domain.dto.request.CreateTicketRequest;
@@ -16,6 +17,7 @@ import com.apicultores.backendapicultores.exception.custom.ReservationStatusExce
 import com.apicultores.backendapicultores.repository.PaymentRepository;
 import com.apicultores.backendapicultores.repository.ReservationRepository;
 import com.apicultores.backendapicultores.repository.TicketRepository;
+import com.apicultores.backendapicultores.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,10 +34,19 @@ public class CreateTicketService {
     private final TicketMapper ticketMapper;
     private final ReservationRepository reservationRepository;
     private final PaymentRepository paymentRepository;
+    private final UserRepository userRepository;
 
     public List<TicketResponse> generateTicketsForReservation(CreateTicketRequest ticketRequest){
         Reservation reservation = reservationRepository.findById(ticketRequest.getReservationId())
                 .orElseThrow(()-> new ReservationNotFoundException("La reserva con dicho Id no se encuentra"));
+
+        long purchasedCount = ticketRepository.countTicketByUserAndEvent(ticketRequest.getUserId(),reservation.getEvent().getEventId());
+
+        long totalSeats = purchasedCount + reservation.getSeats().size();
+
+        if (totalSeats > BusinessConst.Max_Purchase){
+            throw new LimitSeatsException("Ya se compraron la máxima cantidad de asientos por persona para este evento");
+        }
 
         Payment payment = paymentRepository.findByReservationReservationId(reservation.getReservationId())
                 .orElseThrow(() -> new IllegalArgumentException("No se encontró un pago asociado a esta reserva."));

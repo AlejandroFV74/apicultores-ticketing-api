@@ -24,4 +24,10 @@ public interface TicketRepository extends JpaRepository<Ticket, UUID> {
             "JOIN FETCH s.event " +
             "JOIN FETCH t.owner")
     Optional<List<Ticket>> findAllWithSeat();
+
+    @Query("SELECT COUNT(t) FROM Ticket t " +
+            "WHERE t.owner.id = :userId " +
+            "AND t.seat.event.eventId = :eventId " +
+            "AND t.status IN ('PAID', 'USED')")
+    long countTicketByUserAndEvent(@Param("userId") UUID userId, @Param("eventId") UUID eventId);
 }
