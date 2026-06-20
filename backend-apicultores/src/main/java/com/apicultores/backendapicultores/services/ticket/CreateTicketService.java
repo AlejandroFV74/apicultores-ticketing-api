@@ -44,7 +44,7 @@ public class CreateTicketService {
 
         long totalSeats = purchasedCount + reservation.getSeats().size();
 
-        if (totalSeats > BusinessConst.Max_Purchase){
+        if (totalSeats > reservation.getEvent().getMaxTicketsPerUser()){
             throw new LimitSeatsException("Ya se compraron la máxima cantidad de asientos por persona para este evento");
         }
 

@@ -45,20 +45,13 @@ public class TicketController {
     }
 
     @GetMapping()
-    public ResponseEntity<GeneralResponse> getTickets(){
+    public ResponseEntity<GeneralResponse> getAllTickets(){
             return buildResponse(
                     "Se han obtenido los tickets",
                     HttpStatus.OK,
                     getTicketService.getAllTickets()
             );
 
-        /*
-        return buildResponse(
-                "Se han obtenido el ticket",
-                HttpStatus.OK,
-                getTicketService.getTicketById(ticket_id)
-        );
-        */
     }
 
     @GetMapping("/owner/{owner_id}")
@@ -76,6 +69,24 @@ public class TicketController {
                 "Se ha cobrado el ticket",
                 HttpStatus.OK,
                 ticketValidationService.validateAndAccess(qr_code)
+        );
+    }
+
+    @GetMapping("/history/{owner_id}")
+    public ResponseEntity<GeneralResponse> getHistoryTickets(@PathVariable(required = true) UUID owner_id){
+        return buildResponse(
+                "se han encontrado tickets usados",
+                HttpStatus.OK,
+                getTicketService.getUsedTicketByOwner(owner_id)
+        );
+    }
+
+    @GetMapping("/mytickets/{owner_id}")
+    public ResponseEntity<GeneralResponse>  getMyTickets(@PathVariable(required = true) UUID owner_id){
+        return buildResponse(
+                "Se han encontrado tickets activos",
+                HttpStatus.OK,
+                getTicketService.getActiveTicketByOwner(owner_id)
         );
     }
 

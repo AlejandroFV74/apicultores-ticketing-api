@@ -42,4 +42,20 @@ public class GetTicketService {
                 .collect(Collectors.toList());
     }
 
+    public List<TicketResponse> getUsedTicketByOwner(UUID uuid){
+        List<Ticket> tickets = ticketRepository.findByStatusUsedAndOwner(uuid).
+                orElseThrow(() -> new TicketNotFoundException("No se han encontrado tickets usados"));
+        return tickets.stream()
+                .map(ticketMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<TicketResponse> getActiveTicketByOwner(UUID uuid){
+        List<Ticket> tickets = ticketRepository.findActiveTicketsByOwner(uuid).
+                orElseThrow(() -> new TicketNotFoundException("No se han encontrado tickets Activos"));
+        return tickets.stream()
+                .map(ticketMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
 }

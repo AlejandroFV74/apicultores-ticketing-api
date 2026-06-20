@@ -30,4 +30,20 @@ public interface TicketRepository extends JpaRepository<Ticket, UUID> {
             "AND t.seat.event.eventId = :eventId " +
             "AND t.status IN ('PAID', 'USED')")
     long countTicketByUserAndEvent(@Param("userId") UUID userId, @Param("eventId") UUID eventId);
+
+    @Query("SELECT t FROM Ticket t " +
+            "JOIN FETCH t.seat s " +
+            "JOIN FETCH s.event " +
+            "JOIN FETCH t.owner o " +
+            "WHERE o.id = :ownerId AND t.status = USED")
+    Optional<List<Ticket>> findByStatusUsedAndOwner(@Param("ownerId") UUID owner_id);
+
+
+    @Query("SELECT t FROM Ticket t " +
+            "JOIN FETCH t.seat s " +
+            "JOIN FETCH s.event " +
+            "JOIN FETCH t.owner o " +
+            "WHERE o.id = :ownerId AND t.status = PAID")
+    Optional<List<Ticket>> findActiveTicketsByOwner(@Param("ownerId") UUID owner_id);
+
 }
