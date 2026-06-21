@@ -1,6 +1,7 @@
 package com.apicultores.backendapicultores.domain.dto.request;
 
 import com.apicultores.backendapicultores.domain.entity.Seat;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,5 +15,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateReservationRequest {
+    @NotNull(message = "Asientos no deben ser nulos")
     private List<UUID> seatsIds;
 }

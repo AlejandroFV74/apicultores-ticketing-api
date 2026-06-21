@@ -14,6 +14,7 @@ import com.apicultores.backendapicultores.repository.UserRepository;
 import com.apicultores.backendapicultores.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -22,13 +23,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ReservationServiceImpl implements ReservationService {
 
-    public SeatRepository seatRepository;
-    public CurrentUserProvider currentUserProvider;
-    public ReservationMapper reservationMapper;
-    public UserRepository userRepository;
+    private final SeatRepository seatRepository;
+    private final CurrentUserProvider currentUserProvider;
+    private final ReservationMapper reservationMapper;
+    private final UserRepository userRepository;
 
     @Override
-
+    @Transactional
     public ReservationResponse createReservation(CreateReservationRequest request){
         List<Seat> seats = seatRepository.findAllById(
                 request.getSeatsIds()
