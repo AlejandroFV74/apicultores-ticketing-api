@@ -1,0 +1,24 @@
+package com.apicultores.backendapicultores.domain.dto.response;
+
+import com.apicultores.backendapicultores.common.enums.ReservationStatus;
+import com.apicultores.backendapicultores.domain.entity.Seat;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ReservationResponse {
+    private UUID id;
+    private List<Seat> seats;
+    private ReservationStatus status;
+    private LocalDateTime experiesAt;
+    private LocalDateTime createdAt;
+}
