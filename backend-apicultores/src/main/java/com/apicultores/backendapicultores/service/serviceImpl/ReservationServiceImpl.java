@@ -27,6 +27,7 @@ public class ReservationServiceImpl implements ReservationService {
     private final CurrentUserProvider currentUserProvider;
     private final ReservationMapper reservationMapper;
     private final UserRepository userRepository;
+    private final ReservationRepository reservationRepository;
 
     @Override
     @Transactional
@@ -43,8 +44,9 @@ public class ReservationServiceImpl implements ReservationService {
                         user,
                         seats
                 );
+        Reservation saved = reservationRepository.save(reservation);
 
-        return   reservationMapper.toDto(reservation);
+        return reservationMapper.toDto(saved);
 
     }
 }
