@@ -2,13 +2,19 @@ package com.apicultores.backendapicultores.controller;
 
 import com.apicultores.backendapicultores.domain.dto.request.PaymentRequest;
 import com.apicultores.backendapicultores.domain.dto.response.GeneralResponse;
+import com.apicultores.backendapicultores.domain.entity.Payment;
+import com.apicultores.backendapicultores.repository.PaymentRepository;
 import com.apicultores.backendapicultores.service.PaymentService;
+import com.apicultores.backendapicultores.service.StripeService;
+import com.stripe.exception.StripeException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -19,6 +25,8 @@ import java.util.UUID;
 public class PaymentController {
 
     private final PaymentService paymentService;
+    private final PaymentRepository paymentRepository;
+    private final StripeService stripeService;
 
     @PostMapping
     public ResponseEntity<GeneralResponse> createPayment(@RequestBody PaymentRequest request) {
@@ -54,6 +62,27 @@ public class PaymentController {
                 HttpStatus.OK,
                 paymentService.getPaymentByReservationId(reservationId)
         );
+    }
+
+    @GetMapping("/checkout/{paymentId}")
+    public ResponseEntity<Void> redirectToStripeCheckout(@PathVariable UUID paymentId) throws StripeException {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new RuntimeException("Pago no encontrado"));
+
+        String checkoutUrl = stripeService.createCheckoutSession(payment);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create(checkoutUrl));
+        return new ResponseEntity<>(headers,HttpStatus.SEE_OTHER);
+    }
+
+    @GetMapping("/success")
+    public String paymentSuccess(@RequestParam("payment_id") UUID paymentId) {
+        return "¡Pago procesado con éxito!";
+    }
+
+    @GetMapping("/cancel")
+    public String paymentCancel(@RequestParam("payment_id") UUID paymentId) {
+        return "El pago fue cancelado por el usuario";
     }
 
     private ResponseEntity<GeneralResponse> buildResponse(String message, HttpStatus status, Object data) {
