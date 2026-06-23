@@ -128,6 +128,25 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
+    @ExceptionHandler(SeatNotAvailableException.class)
+    public ResponseEntity<ApiErrorResponse> handleSeatNotAvailable(SeatNotAvailableException e){
+        return buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
+    }
+
+    @ExceptionHandler(AlreadyInWaitlistException.class)
+    public ResponseEntity<ApiErrorResponse> handleAlreadyInWaitlist(AlreadyInWaitlistException e){
+        return buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
+    }
+
+    @ExceptionHandler(WaitlistNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleWaitlistNotFound(WaitlistNotFoundException e){
+        return buildErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
+    }
+
+    @ExceptionHandler(InvalidDiscountException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidDiscount(InvalidDiscountException e){
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
 
     private ResponseEntity<ApiErrorResponse> buildErrorResponse(HttpStatus status, Object data) {
         String uri = ServletUriComponentsBuilder.fromCurrentRequestUri().build().getPath();
