@@ -1,5 +1,6 @@
 package com.apicultores.backendapicultores.service.serviceImpl;
 
+import com.apicultores.backendapicultores.common.enums.ReservationStatus;
 import com.apicultores.backendapicultores.common.mappers.ReservationMapper;
 import com.apicultores.backendapicultores.config.security.CurrentUserProvider;
 import com.apicultores.backendapicultores.domain.dto.request.CreateReservationRequest;
@@ -7,6 +8,7 @@ import com.apicultores.backendapicultores.domain.dto.response.ReservationRespons
 import com.apicultores.backendapicultores.domain.entity.Reservation;
 import com.apicultores.backendapicultores.domain.entity.Seat;
 import com.apicultores.backendapicultores.domain.entity.User;
+import com.apicultores.backendapicultores.exception.custom.BadRequestException;
 import com.apicultores.backendapicultores.exception.custom.ReservationNotFoundException;
 import com.apicultores.backendapicultores.exception.custom.UserNotFoundException;
 import com.apicultores.backendapicultores.domain.dto.request.UpdateReservationRequest;
@@ -20,6 +22,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -34,6 +38,7 @@ public class ReservationServiceImpl implements ReservationService {
     private final UserRepository userRepository;
     private final ReservationRepository reservationRepository;
     private final ReservationStatusHistoryRepository reservationStatusHistoryRepository;
+    private final Clock clock;
 
     @Override
     @Transactional
@@ -71,46 +76,61 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationNotFoundException("La reserva con dicho Id no se encuentra"));
 
-        // Update seats if provided
+        // Prevent modifying seats if reservation expired
+        LocalDateTime nowSeats = LocalDateTime.now(clock);
+        if (reservation.getExpiresAt() != null && reservation.getExpiresAt().isBefore(nowSeats)) {
+            throw new BadRequestException("Cannot modify seats: reservation already expired");
+        }
         if (request.getSeatsIds() != null && !request.getSeatsIds().isEmpty()) {
             List<Seat> seats = seatRepository.findAllById(request.getSeatsIds());
-            // validate seats belong to same event among themselves
             if (!seats.isEmpty()) {
                 var event = seats.get(0).getEvent();
                 for (Seat s : seats) {
                     if (s.getEvent() == null || !s.getEvent().getEventId().equals(event.getEventId())) {
-                        throw new com.apicultores.backendapicultores.exception.custom.BadRequestException("Todos los asientos deben pertenecer al mismo evento");
+                        throw new BadRequestException("Todos los asientos deben pertenecer al mismo evento");
                     }
                 }
 
-                // validate seats belong to the same event as the reservation
                 if (reservation.getEvent() != null && !event.getEventId().equals(reservation.getEvent().getEventId())) {
-                    throw new com.apicultores.backendapicultores.exception.custom.BadRequestException("Los asientos deben pertenecer al mismo evento de la reserva actual");
+                    throw new BadRequestException("Los asientos deben pertenecer al mismo evento de la reserva actual");
                 }
             }
             reservation.setSeats(seats);
         }
 
-        // Update status if provided
         if (request.getStatus() != null && request.getStatus() != reservation.getStatus()) {
+            // Validar si no ha expirado
+            LocalDateTime now = LocalDateTime.now(clock);
+            if (request.getStatus() == ReservationStatus.PENDING
+                    && reservation.getExpiresAt() != null
+                    && reservation.getExpiresAt().isBefore(now)) {
+                throw new BadRequestException("Cannot set status to PENDING: reservation already expired");
+            }
+
             String fromStatus = reservation.getStatus() != null ? reservation.getStatus().name() : null;
             String toStatus = request.getStatus().name();
 
-            // update reservation status first
             reservation.setStatus(request.getStatus());
             Reservation updated = reservationRepository.save(reservation);
 
-            // persist history as independent entity to avoid cascade/persist issues
+            UUID changer = currentUserProvider.getCurrentUserId();
+            if (changer == null) {
+                if (reservation.getUser() != null && reservation.getUser().getUserId() != null) {
+                    changer = reservation.getUser().getUserId();
+                } else {
+                    throw new BadRequestException("No authenticated user to record status change");
+                }
+            }
+
             ReservationStatusHistory history = ReservationStatusHistory.builder()
                     .reservation(reservationRepository.getReferenceById(updated.getReservationId()))
-                    .changedByUserId(currentUserProvider.getCurrentUserId())
+                    .changedByUserId(changer)
                     .fromStatus(fromStatus)
                     .toStatus(toStatus)
                     .build();
             reservationStatusHistoryRepository.save(history);
         }
 
-        // Return fresh dto from repository to ensure consistency
         Reservation saved = reservationRepository.findById(reservation.getReservationId()).orElse(reservation);
         return reservationMapper.toDto(saved);
     }
