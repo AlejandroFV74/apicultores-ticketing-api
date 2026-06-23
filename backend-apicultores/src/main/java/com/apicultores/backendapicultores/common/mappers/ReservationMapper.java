@@ -8,10 +8,12 @@ import com.apicultores.backendapicultores.domain.entity.Reservation;
 import com.apicultores.backendapicultores.domain.entity.Seat;
 import com.apicultores.backendapicultores.domain.entity.User;
 import com.apicultores.backendapicultores.domain.entity.Event;
+import com.apicultores.backendapicultores.domain.dto.response.SeatResponse;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class ReservationMapper {
@@ -40,9 +42,21 @@ public class ReservationMapper {
     }
 
     public ReservationResponse toDto(Reservation reservation){
+        List<SeatResponse> seatsDto = reservation.getSeats()
+                .stream()
+                .map(s -> SeatResponse.builder()
+                        .id(s.getSeatId())
+                        .seatNumber(s.getSeatNumber())
+                        .seatType(s.getSeatType())
+                        .price(s.getPrice())
+                        .status(s.getStatus())
+                        .createdAt(s.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
+
         return ReservationResponse.builder()
                 .id(reservation.getReservationId())
-                .seats(reservation.getSeats())
+                .seats(seatsDto)
                 .status(reservation.getStatus())
                 .createdAt(reservation.getCreatedAt())
                 .experiesAt(reservation.getExpiresAt())
