@@ -25,7 +25,7 @@ public class GetTicketService {
     }
 
     public List<TicketResponse> getTicketsByOwner(UUID ownerId){
-        List<Ticket> tickets = ticketRepository.findByOwner(ownerId)
+        List<Ticket> tickets = ticketRepository.findByOwnerWithEagerLoad(ownerId)
                 .orElseThrow(() -> new TicketNotFoundException("El usuario no tiene tickets"));
 
 
@@ -35,7 +35,7 @@ public class GetTicketService {
     }
 
     public List<TicketResponse> getAllTickets(){
-        List<Ticket> tickets = ticketRepository.findAll();
+        List<Ticket> tickets = ticketRepository.findAllWithEagerLoad();
         if (tickets.isEmpty()){
             throw new TicketNotFoundException("No se ha encontrado ningún ticket");
         }
