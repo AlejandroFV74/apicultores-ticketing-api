@@ -2,6 +2,7 @@ package com.apicultores.backendapicultores.service;
 
 import com.apicultores.backendapicultores.domain.dto.request.CreateEventRequest;
 import com.apicultores.backendapicultores.domain.dto.request.UpdateEventRequest;
+import com.apicultores.backendapicultores.domain.dto.response.EventReportResponse;
 import com.apicultores.backendapicultores.domain.dto.response.EventResponse;
 
 import java.util.List;
@@ -21,5 +22,7 @@ public interface EventService {
     List<EventResponse> getMyEvents();
 
     List<EventResponse> searchByTitle(String title);
+
+    EventReportResponse getEventReport(UUID id);
 
 }
