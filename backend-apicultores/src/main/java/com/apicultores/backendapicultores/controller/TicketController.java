@@ -26,7 +26,6 @@ public class TicketController {
     private final CreateTicketService createTicketService;
     private final CancelOrRefundTicketService cancelOrRefundTicketService;
     private final GetTicketService getTicketService;
-
     private final TicketValidationService ticketValidationService;
     private final TicketTransferService ticketTransferService;
 
@@ -57,8 +56,6 @@ public class TicketController {
             );
     }
 
-    }
-
     @GetMapping("/owner/{owner_id}")
     public ResponseEntity<GeneralResponse> getTicketByOwner(@PathVariable(required = true) UUID owner_id){
       return buildResponse(
@@ -74,7 +71,6 @@ public class TicketController {
         return buildResponse(
                 "Ticket transferido",
                 HttpStatus.OK,
-                getTicketService.getTicketsByOwnerId(owner_id)
                 ticketTransferService.transferTicket(request)
         );
     }
@@ -93,7 +89,7 @@ public class TicketController {
         return buildResponse(
                 "se han encontrado tickets usados",
                 HttpStatus.OK,
-                getTicketService.getUsedTicketByOwner(owner_id)
+                getTicketService.getTicketsByOwnerId(owner_id)
         );
     }
 
