@@ -1,5 +1,5 @@
 package com.apicultores.backendapicultores.common.enums;
 
 public enum ReservationStatus {
-    PENDING, ACTIVE
+    PENDING, ACTIVE, EXPIRED
 }
