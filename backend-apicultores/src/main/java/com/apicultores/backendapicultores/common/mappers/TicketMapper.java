@@ -23,6 +23,7 @@ public class TicketMapper {
 
     public TicketResponse toDto(Ticket ticket){
         return TicketResponse.builder()
+                .ticketId(ticket.getTicket_id())
                 .qrCode(ticket.getQrCode())
                 .status(ticket.getStatus())
                 .usedAt(ticket.getUsedAt())

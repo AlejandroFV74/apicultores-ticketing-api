@@ -17,6 +17,7 @@ import com.apicultores.backendapicultores.repository.ReservationRepository;
 import com.apicultores.backendapicultores.repository.TicketRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,7 @@ public class CreateTicketService {
     private final ReservationRepository reservationRepository;
     private final PaymentRepository paymentRepository;
 
+    @Transactional
     public List<TicketResponse> generateTicketsForReservation(CreateTicketRequest ticketRequest){
         Reservation reservation = reservationRepository.findById(ticketRequest.getReservationId())
                 .orElseThrow(()-> new ReservationNotFoundException("La reserva con dicho Id no se encuentra"));

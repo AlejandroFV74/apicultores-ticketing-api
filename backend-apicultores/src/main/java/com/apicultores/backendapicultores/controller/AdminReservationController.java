@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/api/admin/reservations")
 @RequiredArgsConstructor
+//Clase solo para pruebas de expiración de reservas, no se expone en el frontend
 public class AdminReservationController {
 
     private final ReservationExpiryService expiryService;

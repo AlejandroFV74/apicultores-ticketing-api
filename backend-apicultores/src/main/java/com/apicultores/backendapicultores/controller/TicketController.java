@@ -2,10 +2,12 @@ package com.apicultores.backendapicultores.controller;
 
 import com.apicultores.backendapicultores.domain.dto.request.CreateTicketRequest;
 import com.apicultores.backendapicultores.domain.dto.request.RefundTicketRequest;
+import com.apicultores.backendapicultores.domain.dto.request.TransferTicketRequest;
 import com.apicultores.backendapicultores.domain.dto.response.GeneralResponse;
 import com.apicultores.backendapicultores.services.ticket.CancelOrRefundTicketService;
 import com.apicultores.backendapicultores.services.ticket.CreateTicketService;
 import com.apicultores.backendapicultores.services.ticket.GetTicketService;
+import com.apicultores.backendapicultores.services.ticket.TicketTransferService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ public class TicketController {
     private final CreateTicketService createTicketService;
     private final CancelOrRefundTicketService cancelOrRefundTicketService;
     private final GetTicketService getTicketService;
+    private final TicketTransferService ticketTransferService;
 
     @PostMapping("/generate")
     public ResponseEntity<GeneralResponse> generateTicket(@RequestBody CreateTicketRequest request){
@@ -42,21 +45,22 @@ public class TicketController {
         );
     }
 
-    @GetMapping()
+    @GetMapping("")
     public ResponseEntity<GeneralResponse> getTickets(){
             return buildResponse(
                     "Se han obtenido los tickets",
                     HttpStatus.OK,
                     getTicketService.getAllTickets()
             );
+    }
 
-        /*
+    @PostMapping("/transfer")
+    public ResponseEntity<GeneralResponse> transferTicket(@RequestBody TransferTicketRequest request){
         return buildResponse(
-                "Se han obtenido el ticket",
+                "Ticket transferido",
                 HttpStatus.OK,
-                getTicketService.getTicketById(ticket_id)
+                ticketTransferService.transferTicket(request)
         );
-        */
     }
 
     @GetMapping("/owner/{owner_id}")
