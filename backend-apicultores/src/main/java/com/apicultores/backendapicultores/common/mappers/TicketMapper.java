@@ -2,6 +2,7 @@ package com.apicultores.backendapicultores.common.mappers;
 
 import com.apicultores.backendapicultores.common.enums.TicketStatus;
 import com.apicultores.backendapicultores.domain.dto.response.ticket.TicketResponse;
+import com.apicultores.backendapicultores.domain.dto.response.ticket.TicketValidationResponse;
 import com.apicultores.backendapicultores.domain.entity.Payment;
 import com.apicultores.backendapicultores.domain.entity.Reservation;
 import com.apicultores.backendapicultores.domain.entity.Seat;
@@ -33,6 +34,12 @@ public class TicketMapper {
                 .eventName(ticket.getSeat().getEvent().getTitle())
                 .eventDate(ticket.getSeat().getEvent().getStartDate())
                 .ownerName(ticket.getOwner().getUsername())
+                .build();
+    }
+
+    public TicketValidationResponse toValidationDto(String message){
+        return TicketValidationResponse.builder()
+                .confirmation(message)
                 .build();
     }
 }

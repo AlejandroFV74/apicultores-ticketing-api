@@ -4,6 +4,7 @@ import com.apicultores.backendapicultores.domain.dto.request.CreateTicketRequest
 import com.apicultores.backendapicultores.domain.dto.request.RefundTicketRequest;
 import com.apicultores.backendapicultores.domain.dto.request.TransferTicketRequest;
 import com.apicultores.backendapicultores.domain.dto.response.GeneralResponse;
+import com.apicultores.backendapicultores.services.TicketValidationService;
 import com.apicultores.backendapicultores.services.ticket.CancelOrRefundTicketService;
 import com.apicultores.backendapicultores.services.ticket.CreateTicketService;
 import com.apicultores.backendapicultores.services.ticket.GetTicketService;
@@ -25,6 +26,8 @@ public class TicketController {
     private final CreateTicketService createTicketService;
     private final CancelOrRefundTicketService cancelOrRefundTicketService;
     private final GetTicketService getTicketService;
+
+    private final TicketValidationService ticketValidationService;
     private final TicketTransferService ticketTransferService;
 
     @PostMapping("/generate")
@@ -54,21 +57,52 @@ public class TicketController {
             );
     }
 
+    }
+
+    @GetMapping("/owner/{owner_id}")
+    public ResponseEntity<GeneralResponse> getTicketByOwner(@PathVariable(required = true) UUID owner_id){
+      return buildResponse(
+                "Tickets del usuario obtenidos",
+                HttpStatus.OK,
+                getTicketService.getTicketsByOwnerId(owner_id)
+        );
+    }
+
+  
     @PostMapping("/transfer")
     public ResponseEntity<GeneralResponse> transferTicket(@RequestBody TransferTicketRequest request){
         return buildResponse(
                 "Ticket transferido",
                 HttpStatus.OK,
+                getTicketService.getTicketsByOwnerId(owner_id)
                 ticketTransferService.transferTicket(request)
         );
     }
 
-    @GetMapping("/owner/{owner_id}")
-    public ResponseEntity<GeneralResponse> getTicketByOwner(@RequestParam(required = true) UUID owner_id){
+    @PostMapping("/validation/{qr_code}")
+    public ResponseEntity<GeneralResponse> validateTicket(@PathVariable(required = true) String qr_code){
         return buildResponse(
-                "Se han obtenido el ticket",
+                "Se ha cobrado el ticket",
                 HttpStatus.OK,
-                getTicketService.getTicketsByOwner(owner_id)
+                ticketValidationService.validateAndAccess(qr_code)
+        );
+    }
+
+    @GetMapping("/history/{owner_id}")
+    public ResponseEntity<GeneralResponse> getHistoryTickets(@PathVariable(required = true) UUID owner_id){
+        return buildResponse(
+                "se han encontrado tickets usados",
+                HttpStatus.OK,
+                getTicketService.getUsedTicketByOwner(owner_id)
+        );
+    }
+
+    @GetMapping("/mytickets/{owner_id}")
+    public ResponseEntity<GeneralResponse>  getMyTickets(@PathVariable(required = true) UUID owner_id){
+        return buildResponse(
+                "Se han encontrado tickets activos",
+                HttpStatus.OK,
+                getTicketService.getActiveTicketByOwner(owner_id)
         );
     }
 

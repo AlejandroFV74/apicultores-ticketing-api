@@ -123,6 +123,11 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
     }
 
+    @ExceptionHandler(LimitSeatsException.class)
+    public ResponseEntity<ApiErrorResponse> handleLimitSetasException(LimitSeatsException e){
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
 
     private ResponseEntity<ApiErrorResponse> buildErrorResponse(HttpStatus status, Object data) {
         String uri = ServletUriComponentsBuilder.fromCurrentRequestUri().build().getPath();

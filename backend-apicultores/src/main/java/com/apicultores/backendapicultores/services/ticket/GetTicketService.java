@@ -24,7 +24,7 @@ public class GetTicketService {
         );
     }
 
-    public List<TicketResponse> getTicketsByOwner(UUID ownerId){
+    public List<TicketResponse> getTicketsByOwnerId(UUID ownerId){
         List<Ticket> tickets = ticketRepository.findByOwnerWithEagerLoad(ownerId)
                 .orElseThrow(() -> new TicketNotFoundException("El usuario no tiene tickets"));
 

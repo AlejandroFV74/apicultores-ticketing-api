@@ -1,5 +1,6 @@
 package com.apicultores.backendapicultores.services.ticket;
 
+import com.apicultores.backendapicultores.common.enums.PaymentStatus;
 import com.apicultores.backendapicultores.common.enums.TicketStatus;
 import com.apicultores.backendapicultores.common.mappers.TicketMapper;
 import com.apicultores.backendapicultores.domain.dto.request.RefundTicketRequest;
@@ -7,6 +8,7 @@ import com.apicultores.backendapicultores.domain.dto.response.ticket.TicketRespo
 import com.apicultores.backendapicultores.domain.entity.Payment;
 import com.apicultores.backendapicultores.domain.entity.Refund;
 import com.apicultores.backendapicultores.domain.entity.Ticket;
+import com.apicultores.backendapicultores.exception.custom.DueDateException;
 import com.apicultores.backendapicultores.exception.custom.TicketNotFoundException;
 import com.apicultores.backendapicultores.exception.custom.TicketStatusException;
 import com.apicultores.backendapicultores.repository.PaymentRepository;
@@ -16,6 +18,9 @@ import com.apicultores.backendapicultores.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 @AllArgsConstructor
@@ -37,14 +42,21 @@ public class CancelOrRefundTicketService {
 
         Payment payment = ticket.getPayment();
 
-        ticket.setStatus(TicketStatus.REFUNDED);
-        ticketRepository.save(ticket);
+        LocalDateTime dueDate = ticket.getSeat().getEvent().getEndDate();
+        LocalDateTime cancellationDeadLine = dueDate.minusHours(48);
 
-        //Añadir el status del payment a REFUNDED cuando este implementado
+        if (LocalDateTime.now().isAfter(cancellationDeadLine)){
+            throw new DueDateException("Solo está permitida la cancelación y reembolso hasta 48 horas antes del inicio del evento");
+        }
+
+        ticket.setStatus(TicketStatus.REFUNDED);
+        payment.setStatus(PaymentStatus.REFUNDED);
+        paymentRepository.save(payment);
+        ticketRepository.save(ticket);
 
         Refund refund = Refund.builder()
                 .payment(payment)
-                .amount(request.getAmount())
+                .amount(payment.getAmount())
                 .reason(request.getReason())
                 .build();
 
