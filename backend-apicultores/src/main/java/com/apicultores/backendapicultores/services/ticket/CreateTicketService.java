@@ -53,8 +53,8 @@ public class CreateTicketService {
         Payment payment = paymentRepository.findByReservationReservationId(reservation.getReservationId())
                 .orElseThrow(() -> new IllegalArgumentException("No se encontró un pago asociado a esta reserva."));
 
-        if (reservation.getStatus() != ReservationStatus.ACTIVE){
-            throw new ReservationStatusException("No podemos emitir el ticket si la reserva no está pagada");
+        if (reservation.getStatus() == ReservationStatus.EXPIRED){
+            throw new ReservationStatusException("La reserva expiró");
         }
 
         List<Seat> associatedSeats = reservation.getSeats();
