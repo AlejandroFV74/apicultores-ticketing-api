@@ -79,3 +79,8 @@ stripe:
     secret-key: ${STRIPE_KEY}
     success-url: http://localhost:8080/api/payments/success
     cancel-url: http://localhost:8080/api/payments/cancel
+
+app:
+  reservation:
+    scheduler:
+      enabled: false
