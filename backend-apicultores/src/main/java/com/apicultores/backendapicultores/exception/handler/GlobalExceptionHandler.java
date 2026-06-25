@@ -107,7 +107,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
   
-    @ExceptionHandler({TicketNotFoundException.class, ReservationNotFoundException.class})
+    @ExceptionHandler({TicketNotFoundException.class, ReservationNotFoundException.class, PaymentNotFoundException.class})
     public ResponseEntity<ApiErrorResponse> handleNotFoundExceptions(Exception e) {
         return buildErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
     }
