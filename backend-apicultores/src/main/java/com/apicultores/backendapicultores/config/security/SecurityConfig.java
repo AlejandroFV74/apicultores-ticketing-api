@@ -48,6 +48,8 @@ public class SecurityConfig {
                                 "/api/events",
                                 "/api/events/search",
                                 "/api/events/*",
+                                "/api/payments",
+                                "/api/payments/**",
                                 "/api/tickets",
                                 "/api/discounts/event/*",
                                 "/api/discounts/quote",

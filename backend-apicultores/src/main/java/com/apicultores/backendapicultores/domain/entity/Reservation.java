@@ -52,7 +52,7 @@ public class Reservation {
     @Builder.Default
     private List<Seat> seats = new ArrayList<>();
 
-    @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "reservation", cascade = {CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
     @Builder.Default
     private List<ReservationStatusHistory> statusHistory = new ArrayList<>();
 

@@ -73,5 +73,14 @@ security:
 # Admin Default
 admin:
   default:
-
     email: ${DEFAULT_ADMIN_EMAIL}
+
+stripe:
+    secret-key: ${STRIPE_KEY}
+    success-url: http://localhost:8080/api/payments/success
+    cancel-url: http://localhost:8080/api/payments/cancel
+
+app:
+  reservation:
+    scheduler:
+      enabled: false

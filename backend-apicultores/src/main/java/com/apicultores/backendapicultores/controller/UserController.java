@@ -23,14 +23,14 @@ import java.util.UUID;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("/users")
+    @GetMapping("")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         List<UserResponse> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
-    @GetMapping("/users/role/{role}")
+    @GetMapping("/role/{role}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserResponse>> getUsersByRole(@PathVariable String role) {
         Role roleEnum = Role.valueOf(role.toUpperCase());
@@ -38,14 +38,14 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @GetMapping("/users/{userId}")
+    @GetMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> getUserById(@PathVariable UUID userId) {
         UserResponse user = userService.getUserById(userId);
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping("/users/email/{email}")
+    @GetMapping("/email/{email}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email) {
         return ResponseEntity.ok(userService.getUserByEmail(email));
@@ -62,26 +62,26 @@ public class UserController {
         return ResponseEntity.ok(stats);
     }
 
-    @PutMapping("/users/disable/{userId}")
+    @PutMapping("/disable/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> disableUser(@PathVariable UUID userId) {
         return ResponseEntity.ok(userService.disableUser(userId));
     }
 
-    @PutMapping("/users/enable/{userId}")
+    @PutMapping("/enable/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> enableUser(@PathVariable UUID userId) {
         return ResponseEntity.ok(userService.enableUser(userId));
     }
 
-    @PutMapping("/users/{userId}")
+    @PutMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> updateUser(@PathVariable UUID userId,
                                                    @Valid @RequestBody UpdateUserRequest request) {
         return ResponseEntity.ok(userService.updateUser(userId, request));
     }
 
-    @PutMapping("/users/role/{userId}")
+    @PutMapping("/role/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> updateUserRole(
             @PathVariable UUID userId,
@@ -90,7 +90,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/users/{userId}")
+    @DeleteMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID userId) {
         userService.deleteUser(userId);

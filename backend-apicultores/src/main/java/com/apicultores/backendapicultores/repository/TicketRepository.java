@@ -13,6 +13,7 @@ import java.util.UUID;
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, UUID> {
     Optional<Ticket> findByQrCode(String qrCode);
+  
     @Query("SELECT t FROM Ticket t " +
             "JOIN FETCH t.seat s " +
             "JOIN FETCH s.event " +
@@ -45,5 +46,18 @@ public interface TicketRepository extends JpaRepository<Ticket, UUID> {
             "JOIN FETCH t.owner o " +
             "WHERE o.id = :ownerId AND t.status = PAID")
     Optional<List<Ticket>> findActiveTicketsByOwner(@Param("ownerId") UUID owner_id);
+    Optional<List<Ticket>> findByOwner(UUID id);
 
+    @Query("SELECT DISTINCT t FROM Ticket t " +
+            "JOIN FETCH t.seat s " +
+            "JOIN FETCH s.event " +
+            "JOIN FETCH t.owner")
+    List<Ticket> findAllWithEagerLoad();
+
+    @Query("SELECT DISTINCT t FROM Ticket t " +
+            "JOIN FETCH t.seat s " +
+            "JOIN FETCH s.event " +
+            "JOIN FETCH t.owner " +
+            "WHERE t.owner.userId = :ownerId")
+    Optional<List<Ticket>> findByOwnerWithEagerLoad(@Param("ownerId") UUID ownerId);
 }

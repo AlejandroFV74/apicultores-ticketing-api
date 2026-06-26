@@ -10,10 +10,7 @@ import com.apicultores.backendapicultores.domain.entity.Payment;
 import com.apicultores.backendapicultores.domain.entity.Reservation;
 import com.apicultores.backendapicultores.domain.entity.Seat;
 import com.apicultores.backendapicultores.domain.entity.Ticket;
-import com.apicultores.backendapicultores.exception.custom.EmptySeatsReservationException;
-import com.apicultores.backendapicultores.exception.custom.LimitSeatsException;
-import com.apicultores.backendapicultores.exception.custom.ReservationNotFoundException;
-import com.apicultores.backendapicultores.exception.custom.ReservationStatusException;
+import com.apicultores.backendapicultores.exception.custom.*;
 import com.apicultores.backendapicultores.repository.PaymentRepository;
 import com.apicultores.backendapicultores.repository.ReservationRepository;
 import com.apicultores.backendapicultores.repository.TicketRepository;
@@ -51,10 +48,10 @@ public class CreateTicketService {
         }
 
         Payment payment = paymentRepository.findByReservationReservationId(reservation.getReservationId())
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró un pago asociado a esta reserva."));
+                .orElseThrow(() -> new PaymentNotFoundException("No se encontró un pago asociado a esta reserva."));
 
-        if (reservation.getStatus() != ReservationStatus.ACTIVE){
-            throw new ReservationStatusException("No podemos emitir el ticket si la reserva no está pagada");
+        if (reservation.getStatus() == ReservationStatus.EXPIRED){
+            throw new ReservationStatusException("La reserva expiró");
         }
 
         List<Seat> associatedSeats = reservation.getSeats();
@@ -69,7 +66,7 @@ public class CreateTicketService {
         List<TicketResponse> ticketResponsesList = new ArrayList<>();
 
         for (Seat seat : associatedSeats){
-            String QrTicket = functions.makeQRInfo(reservation.getUser().getUsername(),seat.getSeatNumber());
+            String QrTicket = functions.makeQRInfo(seat.getSeatNumber());
 
             Ticket newTicket = ticketMapper.toEntityCreate(reservation,payment,seat,QrTicket);
 

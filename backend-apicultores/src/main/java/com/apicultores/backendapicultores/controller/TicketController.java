@@ -2,11 +2,13 @@ package com.apicultores.backendapicultores.controller;
 
 import com.apicultores.backendapicultores.domain.dto.request.CreateTicketRequest;
 import com.apicultores.backendapicultores.domain.dto.request.RefundTicketRequest;
+import com.apicultores.backendapicultores.domain.dto.request.TransferTicketRequest;
 import com.apicultores.backendapicultores.domain.dto.response.GeneralResponse;
 import com.apicultores.backendapicultores.services.TicketValidationService;
 import com.apicultores.backendapicultores.services.ticket.CancelOrRefundTicketService;
 import com.apicultores.backendapicultores.services.ticket.CreateTicketService;
 import com.apicultores.backendapicultores.services.ticket.GetTicketService;
+import com.apicultores.backendapicultores.services.ticket.TicketTransferService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,7 @@ public class TicketController {
     private final CancelOrRefundTicketService cancelOrRefundTicketService;
     private final GetTicketService getTicketService;
     private final TicketValidationService ticketValidationService;
+    private final TicketTransferService ticketTransferService;
 
     @PostMapping("/generate")
     public ResponseEntity<GeneralResponse> generateTicket(@RequestBody CreateTicketRequest request){
@@ -44,22 +47,31 @@ public class TicketController {
         );
     }
 
-    @GetMapping()
-    public ResponseEntity<GeneralResponse> getAllTickets(){
+    @GetMapping("")
+    public ResponseEntity<GeneralResponse> getTickets(){
             return buildResponse(
                     "Se han obtenido los tickets",
                     HttpStatus.OK,
                     getTicketService.getAllTickets()
             );
-
     }
 
     @GetMapping("/owner/{owner_id}")
     public ResponseEntity<GeneralResponse> getTicketByOwner(@PathVariable(required = true) UUID owner_id){
-        return buildResponse(
-                "Se han obtenido el ticket",
+      return buildResponse(
+                "Tickets del usuario obtenidos",
                 HttpStatus.OK,
                 getTicketService.getTicketsByOwnerId(owner_id)
+        );
+    }
+
+  
+    @PostMapping("/transfer")
+    public ResponseEntity<GeneralResponse> transferTicket(@RequestBody TransferTicketRequest request){
+        return buildResponse(
+                "Ticket transferido",
+                HttpStatus.OK,
+                ticketTransferService.transferTicket(request)
         );
     }
 
@@ -77,7 +89,7 @@ public class TicketController {
         return buildResponse(
                 "se han encontrado tickets usados",
                 HttpStatus.OK,
-                getTicketService.getUsedTicketByOwner(owner_id)
+                getTicketService.getTicketsByOwnerId(owner_id)
         );
     }
 

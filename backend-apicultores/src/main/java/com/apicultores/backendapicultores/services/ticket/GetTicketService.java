@@ -25,7 +25,7 @@ public class GetTicketService {
     }
 
     public List<TicketResponse> getTicketsByOwnerId(UUID ownerId){
-        List<Ticket> tickets = ticketRepository.findByOwner_UserId(ownerId)
+        List<Ticket> tickets = ticketRepository.findByOwnerWithEagerLoad(ownerId)
                 .orElseThrow(() -> new TicketNotFoundException("El usuario no tiene tickets"));
 
 
@@ -35,16 +35,10 @@ public class GetTicketService {
     }
 
     public List<TicketResponse> getAllTickets(){
-        List<Ticket> tickets = ticketRepository.findAllWithSeat().orElseThrow(
-                () -> new TicketNotFoundException("No se encontraron tickets"));
-        return tickets.stream()
-                .map(ticketMapper::toDto)
-                .collect(Collectors.toList());
-    }
-
-    public List<TicketResponse> getUsedTicketByOwner(UUID uuid){
-        List<Ticket> tickets = ticketRepository.findByStatusUsedAndOwner(uuid).
-                orElseThrow(() -> new TicketNotFoundException("No se han encontrado tickets usados"));
+        List<Ticket> tickets = ticketRepository.findAllWithEagerLoad();
+        if (tickets.isEmpty()){
+            throw new TicketNotFoundException("No se ha encontrado ningún ticket");
+        }
         return tickets.stream()
                 .map(ticketMapper::toDto)
                 .collect(Collectors.toList());

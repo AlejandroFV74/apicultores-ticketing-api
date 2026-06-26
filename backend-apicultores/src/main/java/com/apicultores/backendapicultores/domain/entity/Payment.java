@@ -48,4 +48,10 @@ public class Payment {
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.paidAt = LocalDateTime.now();
+    }
+
 }

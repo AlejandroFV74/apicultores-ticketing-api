@@ -22,7 +22,7 @@ public class ReservationStatusHistory {
     @JoinColumn(name = "reservation_id", nullable = false)
     private Reservation reservation;
 
-    @Column(name = "changed_by_user_id", nullable = false)
+    @Column(name = "changed_by_user_id")
     private UUID changedByUserId;
 
     @Column(name = "from_status", length = 20)
