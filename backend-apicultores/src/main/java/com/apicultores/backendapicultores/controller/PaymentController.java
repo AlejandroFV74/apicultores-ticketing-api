@@ -2,8 +2,10 @@ package com.apicultores.backendapicultores.controller;
 
 import com.apicultores.backendapicultores.domain.dto.request.PaymentRequest;
 import com.apicultores.backendapicultores.domain.dto.response.GeneralResponse;
+import com.apicultores.backendapicultores.domain.dto.response.ticket.TicketResponse;
 import com.apicultores.backendapicultores.domain.entity.Payment;
 import com.apicultores.backendapicultores.repository.PaymentRepository;
+import com.apicultores.backendapicultores.service.CheckoutService;
 import com.apicultores.backendapicultores.service.PaymentService;
 import com.apicultores.backendapicultores.service.StripeService;
 import com.stripe.exception.StripeException;
@@ -16,6 +18,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @RestController

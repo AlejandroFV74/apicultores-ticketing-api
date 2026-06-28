@@ -1,5 +1,6 @@
 package com.apicultores.backendapicultores.services.ticket;
 
+import com.apicultores.backendapicultores.common.enums.PaymentStatus;
 import com.apicultores.backendapicultores.common.enums.ReservationStatus;
 import com.apicultores.backendapicultores.common.util.BusinessConst;
 import com.apicultores.backendapicultores.common.util.UtilsFunctions;
@@ -35,11 +36,12 @@ public class CreateTicketService {
     private final UserRepository userRepository;
 
     @Transactional
-    public List<TicketResponse> generateTicketsForReservation(CreateTicketRequest ticketRequest){
-        Reservation reservation = reservationRepository.findById(ticketRequest.getReservationId())
-                .orElseThrow(()-> new ReservationNotFoundException("La reserva con dicho Id no se encuentra"));
+    public List<TicketResponse> generateTicketsForReservation(Reservation reservation,
+                                                              Payment payment){
 
-        long purchasedCount = ticketRepository.countTicketByUserAndEvent(ticketRequest.getUserId(),reservation.getEvent().getEventId());
+        long purchasedCount = ticketRepository.countTicketByUserAndEvent(
+                reservation.getUser().getUserId(), reservation.getEvent().getEventId()
+        );
 
         long totalSeats = purchasedCount + reservation.getSeats().size();
 
@@ -47,11 +49,11 @@ public class CreateTicketService {
             throw new LimitSeatsException("Ya se compraron la máxima cantidad de asientos por persona para este evento");
         }
 
-        Payment payment = paymentRepository.findByReservationReservationId(reservation.getReservationId())
-                .orElseThrow(() -> new PaymentNotFoundException("No se encontró un pago asociado a esta reserva."));
-
-        if (reservation.getStatus() == ReservationStatus.EXPIRED){
-            throw new ReservationStatusException("La reserva expiró");
+        if (payment.getStatus() != PaymentStatus.COMPLETED){
+            throw new PaymentStatusException("El pago asociado a la reserva no ha sido completado.");
+        }
+        if (reservation.getStatus() != ReservationStatus.COMPLETED){
+            throw new ReservationStatusException("La reserva no ha sido pagada");
         }
 
         List<Seat> associatedSeats = reservation.getSeats();
@@ -59,8 +61,8 @@ public class CreateTicketService {
         if(associatedSeats.isEmpty()){
             throw new EmptySeatsReservationException("La reserva no contiene asientos");
         }
-        if (associatedSeats.size() > 3){
-            throw new LimitSeatsException("No se pueden reservar más de 3 asientos para el evento");
+        if (associatedSeats.size() > reservation.getEvent().getMaxTicketsPerUser()){
+            throw new LimitSeatsException("Limite de reserva excedido");
         }
 
         List<TicketResponse> ticketResponsesList = new ArrayList<>();

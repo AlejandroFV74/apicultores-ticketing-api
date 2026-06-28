@@ -41,6 +41,17 @@ public class ReservationMapper {
     }
 
     public ReservationResponse toDto(Reservation reservation){
+        List<SeatResponse> seatsDto = reservation.getSeats()
+                .stream()
+                .map(s -> SeatResponse.builder()
+                        .id(s.getSeatId())
+                        .seatNumber(s.getSeatNumber())
+                        .seatType(s.getSeatType())
+                        .price(s.getPrice())
+                        .status(s.getStatus())
+                        .createdAt(s.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
 
         return ReservationResponse.builder()
                 .id(reservation.getReservationId())
@@ -48,6 +59,7 @@ public class ReservationMapper {
                 .status(reservation.getStatus())
                 .createdAt(reservation.getCreatedAt())
                 .expiresAt(reservation.getExpiresAt())
+                .seats(seatsDto)
                 .build();
     }
 }

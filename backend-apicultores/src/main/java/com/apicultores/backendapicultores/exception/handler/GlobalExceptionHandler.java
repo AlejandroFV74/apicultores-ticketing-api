@@ -138,6 +138,11 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.SERVICE_UNAVAILABLE, e.getMessage());
     }
 
+    @ExceptionHandler(PaymentStatusException.class)
+    public ResponseEntity<ApiErrorResponse> handlePaymentStatusException(PaymentStatusException e) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
 
     private ResponseEntity<ApiErrorResponse> buildErrorResponse(HttpStatus status, Object data) {
         String uri = ServletUriComponentsBuilder.fromCurrentRequestUri().build().getPath();
