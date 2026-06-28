@@ -14,4 +14,7 @@ public interface SeatRepository extends JpaRepository<Seat, UUID> {
   
     @EntityGraph(attributePaths = {"event","tickets"})
     List<Seat> findAllById(Iterable<UUID> ids);
+
+    @EntityGraph(attributePaths = {"event"})
+    List<Seat> findByEventEventId(UUID eventId);
 }

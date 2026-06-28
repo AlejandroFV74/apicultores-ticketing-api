@@ -1,5 +1,6 @@
 package com.apicultores.backendapicultores.service.serviceImpl;
 
+import com.apicultores.backendapicultores.common.enums.SeatType;
 import com.apicultores.backendapicultores.domain.dto.request.CreateSeatRequest;
 import com.apicultores.backendapicultores.domain.dto.request.UpdateSeatRequest;
 import com.apicultores.backendapicultores.domain.dto.response.SeatResponse;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,20 +59,65 @@ public class SeatServiceImpl implements SeatService {
 
     @Override
     public List<SeatResponse> getSeatsByEventId(UUID eventId) {
-        Event event = eventRepository.findById(eventId)
+        eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
-        List<Seat> seats = seatRepository.findAll().stream()
-                .filter(seat -> seat.getEvent().getEventId().equals(eventId))
-                .toList();
+        List<Seat> seats = seatRepository.findByEventEventId(eventId);
 
         if (seats.isEmpty()) {
             throw new ResourceNotFoundException("No seats found for this event");
         }
 
         return seats.stream()
+                .sorted(SEAT_LAYOUT_COMPARATOR)
                 .map(seatMapper::toDto)
                 .toList();
+    }
+
+    private static final Comparator<Seat> SEAT_LAYOUT_COMPARATOR = Comparator
+            .comparingInt(SeatServiceImpl::seatTypeOrder)
+            .thenComparingInt(SeatServiceImpl::seatNumberOrder)
+            .thenComparing(Seat::getSeatNumber, Comparator.nullsLast(String::compareToIgnoreCase));
+
+    private static int seatTypeOrder(Seat seat) {
+        SeatType seatType = seat.getSeatType();
+        if (seatType == SeatType.VIP) {
+            return 0;
+        }
+        if (seatType == SeatType.GENERAL) {
+            return 1;
+        }
+        if (seatType == SeatType.PREFERENCIAL) {
+            return 2;
+        }
+        return 3;
+    }
+
+    private static int seatNumberOrder(Seat seat) {
+        String seatNumber = seat.getSeatNumber();
+        if (seatNumber == null || seatNumber.isBlank()) {
+            return Integer.MAX_VALUE;
+        }
+
+        int end = seatNumber.length() - 1;
+        while (end >= 0 && !Character.isDigit(seatNumber.charAt(end))) {
+            end--;
+        }
+
+        if (end < 0) {
+            return Integer.MAX_VALUE;
+        }
+
+        int start = end;
+        while (start >= 0 && Character.isDigit(seatNumber.charAt(start))) {
+            start--;
+        }
+
+        try {
+            return Integer.parseInt(seatNumber.substring(start + 1, end + 1));
+        } catch (NumberFormatException ex) {
+            return Integer.MAX_VALUE;
+        }
     }
 
     @Override
