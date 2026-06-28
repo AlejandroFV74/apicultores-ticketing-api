@@ -51,6 +51,8 @@ public class SecurityConfig {
                                 "/api/payments",
                                 "/api/payments/**",
                                 "/api/tickets",
+                                "/api/discounts/event/*",
+                                "/api/discounts/quote",
                                 "/api/tickets/**"
                         ).permitAll()
                         .anyRequest().authenticated()

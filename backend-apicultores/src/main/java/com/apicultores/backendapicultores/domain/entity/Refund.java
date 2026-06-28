@@ -1,5 +1,6 @@
 package com.apicultores.backendapicultores.domain.entity;
 
+import com.apicultores.backendapicultores.common.enums.RefundStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -31,4 +32,9 @@ public class Refund {
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
+    @Builder.Default
+    private RefundStatus status = RefundStatus.PENDING;
 }
