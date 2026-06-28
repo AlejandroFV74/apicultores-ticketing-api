@@ -66,7 +66,11 @@ public class CreateTicketService {
         }
 
         List<TicketResponse> ticketResponsesList = new ArrayList<>();
-
+        System.out.println("Reservation ID: " + reservation.getReservationId());
+        System.out.println("Seats count: " + reservation.getSeats().size());
+        reservation.getSeats().forEach(s ->
+                System.out.println("Seat: " + s.getSeatNumber())
+        );
         for (Seat seat : associatedSeats){
             String QrTicket = functions.makeQRInfo(seat.getSeatNumber());
 

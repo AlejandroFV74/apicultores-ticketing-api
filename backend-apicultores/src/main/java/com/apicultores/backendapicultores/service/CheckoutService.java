@@ -38,8 +38,8 @@ public class CheckoutService {
         Reservation reservation = payment.getReservation();
 
         // Evitar confirmar dos veces
-        if(reservation.getStatus() == ReservationStatus.COMPLETED){
-            throw new BadRequestException("La reserva ya fue completada");
+        if (reservation.getStatus() == ReservationStatus.COMPLETED) {
+            throw new BadRequestException("La compra ya fue completada. Revisa Mis Tickets.");
         }
 
         // Validar expiración

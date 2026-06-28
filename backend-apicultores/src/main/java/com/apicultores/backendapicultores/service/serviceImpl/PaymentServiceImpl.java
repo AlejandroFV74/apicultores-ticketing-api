@@ -88,21 +88,17 @@ public class PaymentServiceImpl implements PaymentService {
             throw new BadRequestException("La reserva es obligatoria");
         }
 
-        if (request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BadRequestException("El monto debe ser mayor a cero");
-        }
-
         if (isBlank(request.getPaymentMethod())) {
             throw new BadRequestException("El metodo de pago es obligatorio");
         }
 
-        if (isBlank(request.getProvider())) {
-            throw new BadRequestException("El proveedor es obligatorio");
-        }
-
-        if (isBlank(request.getProviderReference())) {
-            throw new BadRequestException("La referencia del proveedor es obligatoria");
-        }
+//        if (isBlank(request.getProvider())) {
+//            throw new BadRequestException("El proveedor es obligatorio");
+//        }
+//
+//        if (isBlank(request.getProviderReference())) {
+//            throw new BadRequestException("La referencia del proveedor es obligatoria");
+//        }
     }
 
     private boolean isBlank(String value) {

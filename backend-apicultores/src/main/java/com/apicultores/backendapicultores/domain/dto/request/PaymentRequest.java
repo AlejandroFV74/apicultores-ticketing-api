@@ -14,8 +14,8 @@ import java.util.UUID;
 @NoArgsConstructor
 public class PaymentRequest {
     private UUID reservation_id;
-    private BigDecimal amount;
+    //private BigDecimal amount;
     private String paymentMethod;
-    private String provider;
-    private String providerReference;
+    //private String provider;
+    //private String providerReference;
 }
