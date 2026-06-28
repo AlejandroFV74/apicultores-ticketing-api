@@ -2,10 +2,12 @@ package com.apicultores.backendapicultores.service.serviceImpl;
 import com.apicultores.backendapicultores.config.security.JwtUtil;
 import com.apicultores.backendapicultores.domain.dto.request.LoginRequest;
 import com.apicultores.backendapicultores.domain.dto.request.RegisterRequest;
+import com.apicultores.backendapicultores.domain.dto.request.UpdatePasswordRequest;
 import com.apicultores.backendapicultores.domain.dto.response.AuthResponse;
 import com.apicultores.backendapicultores.domain.entity.User;
 import com.apicultores.backendapicultores.common.enums.Role;
 import com.apicultores.backendapicultores.exception.custom.BadRequestException;
+import com.apicultores.backendapicultores.exception.custom.ResourceNotFoundException;
 import com.apicultores.backendapicultores.repository.UserRepository;
 import com.apicultores.backendapicultores.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -36,14 +40,15 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException("El nombre completo es requerido");
         }
 
-        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+        String email = normalizeEmail(request.getEmail());
+        if (email.isEmpty()) {
             throw new BadRequestException("El email es requerido");
         }
 
         if (request.getPassword() == null || request.getPassword().length() < 6) {
             throw new BadRequestException("La contraseña debe tener al menos 6 caracteres");
         }
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(email)) {
             throw new BadRequestException("El email ya está registrado");
         }
 
@@ -53,8 +58,8 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException("No se puede registrar como ADMIN");
         }
         User user = User.builder()
-                .fullName(request.getFullName())
-                .email(request.getEmail())
+                .fullName(request.getFullName().trim())
+                .email(email)
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .role(role)
                 .build();
@@ -77,12 +82,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest request) {
+        String email = normalizeEmail(request.getEmail());
         try {
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+                    new UsernamePasswordAuthenticationToken(email, request.getPassword())
             );
 
-            userService.recordSuccessfulLogin(request.getEmail());
+            userService.recordSuccessfulLogin(email);
 
             User user = (User) authentication.getPrincipal();
 
@@ -100,9 +106,35 @@ public class AuthServiceImpl implements AuthService {
                     .build();
 
         } catch (BadCredentialsException e) {
-            userService.recordFailedLoginAttempt(request.getEmail());
-            log.warn("Intento de login fallido para: {}", request.getEmail());
+            userService.recordFailedLoginAttempt(email);
+            log.warn("Intento de login fallido para: {}", email);
             throw new BadCredentialsException("Credenciales inválidas");
         }
+    }
+
+    private String normalizeEmail(String email) {
+        return email == null ? "" : email.trim().toLowerCase(Locale.ROOT);
+    }
+
+    @Override
+    @Transactional
+    public void updatePassword(String email, UpdatePasswordRequest request) {
+        String normalizedEmail = normalizeEmail(email);
+
+        User user = userRepository.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Usuario no encontrado con email: " + normalizedEmail
+                ));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new BadCredentialsException("Contraseña actual inválida");
+        }
+
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+            throw new BadRequestException("La nueva contraseña debe ser diferente a la actual");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 }

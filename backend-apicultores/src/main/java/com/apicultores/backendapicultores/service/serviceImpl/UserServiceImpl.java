@@ -12,13 +12,16 @@ import com.apicultores.backendapicultores.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -32,14 +35,24 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Value("${security.brute-force.lockout-duration:30}")
     private int lockoutDuration;
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con email: " + email));
+    @Value("${security.brute-force.max-failed-attempts:5}")
+    private int maxFailedAttempts;
 
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        String normalizedEmail = normalizeEmail(email);
+        User user = userRepository.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con email: " + normalizedEmail));
+
+        boolean wasLocked = !user.isAccountNonLocked();
         if (user.isAccountLocked(lockoutDuration)) {
-            log.warn("Intento de login en cuenta bloqueada: {}", email);
-            throw new UsernameNotFoundException("Cuenta bloqueada. Intente más tarde.");
+            log.warn("Intento de login en cuenta bloqueada: {}", normalizedEmail);
+            throw new LockedException("Cuenta bloqueada. Intente más tarde.");
+        }
+
+        if (wasLocked) {
+            userRepository.save(user);
         }
 
         return user;
@@ -54,8 +67,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserResponse getUserByEmail(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con email: " + email));
+        String normalizedEmail = normalizeEmail(email);
+        User user = userRepository.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con email: " + normalizedEmail));
         return mapToResponse(user);
     }
 
@@ -134,12 +148,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             user.setFullName(request.getFullName());
         }
 
-        if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
-            if (!user.getEmail().equals(request.getEmail()) &&
-                    userRepository.existsByEmail(request.getEmail())) {
+        String email = normalizeEmail(request.getEmail());
+        if (!email.isEmpty()) {
+            if (!user.getEmail().equals(email) &&
+                    userRepository.existsByEmail(email)) {
                 throw new BadRequestException("El email ya está en uso por otro usuario");
             }
-            user.setEmail(request.getEmail());
+            user.setEmail(email);
         }
 
         User updatedUser = userRepository.save(user);
@@ -152,33 +167,36 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional
     public void recordFailedLoginAttempt(String email) {
-        User user = userRepository.findByEmail(email).orElse(null);
+        String normalizedEmail = normalizeEmail(email);
+        User user = userRepository.findByEmail(normalizedEmail).orElse(null);
         if (user != null) {
             user.incrementFailedAttempts();
-            if (user.getFailedAttempts() >= 5) {
+            if (user.getFailedAttempts() >= maxFailedAttempts) {
                 user.lockAccount();
-                log.warn("Cuenta bloqueada por múltiples intentos fallidos: {}", email);
+                log.warn("Cuenta bloqueada por múltiples intentos fallidos: {}", normalizedEmail);
             }
 
             userRepository.save(user);
-            log.debug("Intento fallido registrado para: {}. Intentos: {}", email, user.getFailedAttempts());
+            log.debug("Intento fallido registrado para: {}. Intentos: {}", normalizedEmail, user.getFailedAttempts());
         }
     }
 
     @Override
     @Transactional
     public void recordSuccessfulLogin(String email) {
-        User user = userRepository.findByEmail(email).orElse(null);
+        String normalizedEmail = normalizeEmail(email);
+        User user = userRepository.findByEmail(normalizedEmail).orElse(null);
         if (user != null) {
             user.resetFailedAttempts();
             user.updateLastLogin();
             userRepository.save(user);
-            log.debug("Login exitoso registrado para: {}", email);
+            log.debug("Login exitoso registrado para: {}", normalizedEmail);
         }
     }
 
     public boolean isAccountLocked(String email) {
-        User user = userRepository.findByEmail(email).orElse(null);
+        String normalizedEmail = normalizeEmail(email);
+        User user = userRepository.findByEmail(normalizedEmail).orElse(null);
         if (user != null) {
             return user.isAccountLocked(lockoutDuration);
         }
@@ -188,11 +206,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional
     @Override
     public void unlockAccount(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con email: " + email));
+        String normalizedEmail = normalizeEmail(email);
+        User user = userRepository.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con email: " + normalizedEmail));
         user.resetFailedAttempts();
         userRepository.save(user);
-        log.info("Cuenta desbloqueada manualmente: {}", email);
+        log.info("Cuenta desbloqueada manualmente: {}", normalizedEmail);
+    }
+
+    private String normalizeEmail(String email) {
+        return email == null ? "" : email.trim().toLowerCase(Locale.ROOT);
     }
 
     private UserResponse mapToResponse(User user) {

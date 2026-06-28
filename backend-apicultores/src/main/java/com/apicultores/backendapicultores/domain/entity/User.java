@@ -1,5 +1,6 @@
 package com.apicultores.backendapicultores.domain.entity;
 
+
 import com.apicultores.backendapicultores.common.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -46,9 +47,9 @@ public class User implements UserDetails {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "enabled", nullable = false)
+    @Column(name = "enabled", nullable = false, columnDefinition = "boolean default true")
     @Builder.Default
-    private boolean enabled = true;
+    private Boolean enabled = true;
 
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
@@ -57,9 +58,9 @@ public class User implements UserDetails {
     @Builder.Default
     private Integer failedAttempts = 0;
 
-    @Column(name = "account_non_locked")
+    @Column(name = "account_non_locked", nullable = false, columnDefinition = "boolean default true")
     @Builder.Default
-    private boolean accountNonLocked = true;
+    private Boolean accountNonLocked = true;
 
     @Column(name = "lock_time")
     private LocalDateTime lockTime;
@@ -87,7 +88,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return accountNonLocked;
+        return accountNonLocked == null || accountNonLocked;
     }
 
     @Override
@@ -97,7 +98,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return enabled;
+        return enabled == null || enabled;
     }
 
     public void incrementFailedAttempts() {
@@ -116,7 +117,7 @@ public class User implements UserDetails {
     }
 
     public boolean isAccountLocked(int lockoutDuration) {
-        if (accountNonLocked) {
+        if (isAccountNonLocked()) {
             return false;
         }
 
@@ -138,9 +139,16 @@ public class User implements UserDetails {
     }
 
     @PrePersist
-    protected void onCreate() {
+    @PreUpdate
+    protected void applyDefaults() {
         if (failedAttempts == null) {
             failedAttempts = 0;
+        }
+        if (enabled == null) {
+            enabled = true;
+        }
+        if (accountNonLocked == null) {
+            accountNonLocked = true;
         }
         if (role == null) {
             role = Role.BUYER;
