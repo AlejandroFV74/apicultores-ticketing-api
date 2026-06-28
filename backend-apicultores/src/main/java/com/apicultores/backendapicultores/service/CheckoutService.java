@@ -1,12 +1,12 @@
 package com.apicultores.backendapicultores.service;
 
+import com.apicultores.backendapicultores.common.enums.PaymentStatus;
 import com.apicultores.backendapicultores.common.enums.ReservationStatus;
 import com.apicultores.backendapicultores.common.enums.SeatStatus;
 import com.apicultores.backendapicultores.domain.dto.response.ticket.TicketResponse;
 import com.apicultores.backendapicultores.domain.entity.Payment;
 import com.apicultores.backendapicultores.domain.entity.Reservation;
 import com.apicultores.backendapicultores.domain.entity.Seat;
-import com.apicultores.backendapicultores.exception.custom.BadRequestException;
 import com.apicultores.backendapicultores.exception.custom.PaymentNotFoundException;
 import com.apicultores.backendapicultores.exception.custom.ReservationStatusException;
 import com.apicultores.backendapicultores.repository.PaymentRepository;
@@ -37,15 +37,13 @@ public class CheckoutService {
 
         Reservation reservation = payment.getReservation();
 
-        // Evitar confirmar dos veces
-        if (reservation.getStatus() == ReservationStatus.COMPLETED) {
-            throw new BadRequestException("La compra ya fue completada. Revisa Mis Tickets.");
-        }
-
         // Validar expiración
         if(reservation.getStatus() == ReservationStatus.EXPIRED){
             throw new ReservationStatusException("La reserva expiró");
         }
+
+        payment.setStatus(PaymentStatus.COMPLETED);
+        paymentRepository.save(payment);
 
         reservation.setStatus(ReservationStatus.COMPLETED);
 

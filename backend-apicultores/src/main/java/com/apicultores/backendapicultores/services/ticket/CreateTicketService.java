@@ -2,20 +2,16 @@ package com.apicultores.backendapicultores.services.ticket;
 
 import com.apicultores.backendapicultores.common.enums.PaymentStatus;
 import com.apicultores.backendapicultores.common.enums.ReservationStatus;
-import com.apicultores.backendapicultores.common.util.BusinessConst;
+import com.apicultores.backendapicultores.common.enums.TicketStatus;
 import com.apicultores.backendapicultores.common.util.UtilsFunctions;
 import com.apicultores.backendapicultores.common.mappers.TicketMapper;
-import com.apicultores.backendapicultores.domain.dto.request.CreateTicketRequest;
 import com.apicultores.backendapicultores.domain.dto.response.ticket.TicketResponse;
 import com.apicultores.backendapicultores.domain.entity.Payment;
 import com.apicultores.backendapicultores.domain.entity.Reservation;
 import com.apicultores.backendapicultores.domain.entity.Seat;
 import com.apicultores.backendapicultores.domain.entity.Ticket;
 import com.apicultores.backendapicultores.exception.custom.*;
-import com.apicultores.backendapicultores.repository.PaymentRepository;
-import com.apicultores.backendapicultores.repository.ReservationRepository;
 import com.apicultores.backendapicultores.repository.TicketRepository;
-import com.apicultores.backendapicultores.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,19 +24,28 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class CreateTicketService {
-    UtilsFunctions functions;
+    private final UtilsFunctions functions;
     private final TicketRepository ticketRepository;
     private final TicketMapper ticketMapper;
-    private final ReservationRepository reservationRepository;
-    private final PaymentRepository paymentRepository;
-    private final UserRepository userRepository;
 
     @Transactional
     public List<TicketResponse> generateTicketsForReservation(Reservation reservation,
                                                               Payment payment){
 
+        List<Ticket> existingTickets = ticketRepository.findByReservationWithEagerLoad(
+                reservation.getReservationId()
+        );
+
+        if (!existingTickets.isEmpty()) {
+            return existingTickets.stream()
+                    .map(ticketMapper::toDto)
+                    .toList();
+        }
+
         long purchasedCount = ticketRepository.countTicketByUserAndEvent(
-                reservation.getUser().getUserId(), reservation.getEvent().getEventId()
+                reservation.getUser().getUserId(),
+                reservation.getEvent().getEventId(),
+                List.of(TicketStatus.USED, TicketStatus.PAID)
         );
 
         long totalSeats = purchasedCount + reservation.getSeats().size();
@@ -66,11 +71,6 @@ public class CreateTicketService {
         }
 
         List<TicketResponse> ticketResponsesList = new ArrayList<>();
-        System.out.println("Reservation ID: " + reservation.getReservationId());
-        System.out.println("Seats count: " + reservation.getSeats().size());
-        reservation.getSeats().forEach(s ->
-                System.out.println("Seat: " + s.getSeatNumber())
-        );
         for (Seat seat : associatedSeats){
             String QrTicket = functions.makeQRInfo(seat.getSeatNumber());
 

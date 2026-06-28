@@ -1,23 +1,20 @@
 package com.apicultores.backendapicultores.service.serviceImpl;
 
-import com.apicultores.backendapicultores.common.enums.ReservationStatus;
-import com.apicultores.backendapicultores.common.enums.SeatStatus;
 import com.apicultores.backendapicultores.common.mappers.PaymentMapper;
 import com.apicultores.backendapicultores.domain.dto.request.PaymentRequest;
 import com.apicultores.backendapicultores.domain.dto.response.PaymentResponse;
 import com.apicultores.backendapicultores.domain.entity.Payment;
 import com.apicultores.backendapicultores.domain.entity.Reservation;
-import com.apicultores.backendapicultores.domain.entity.Seat;
 import com.apicultores.backendapicultores.exception.custom.BadRequestException;
 import com.apicultores.backendapicultores.exception.custom.ResourceNotFoundException;
 import com.apicultores.backendapicultores.repository.PaymentRepository;
 import com.apicultores.backendapicultores.repository.ReservationRepository;
+import com.apicultores.backendapicultores.service.CheckoutService;
 import com.apicultores.backendapicultores.service.PaymentService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +25,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final ReservationRepository reservationRepository;
     private final PaymentMapper paymentMapper;
+    private final CheckoutService checkoutService;
 
     @Override
     @Transactional
@@ -43,15 +41,13 @@ public class PaymentServiceImpl implements PaymentService {
                 });
 
         Payment payment = paymentMapper.toEntityCreate(request, reservation);
+        Payment savedPayment = paymentRepository.save(payment);
 
-        reservation.setStatus(ReservationStatus.COMPLETED);
-        reservationRepository.save(reservation);
-
-        for (Seat seat : reservation.getSeats()) {
-            seat.setStatus(SeatStatus.SOLD);
+        if (!"STRIPE".equalsIgnoreCase(savedPayment.getProvider())) {
+            checkoutService.confirmCheckout(savedPayment.getPaymentId());
         }
 
-        return paymentMapper.toDto(paymentRepository.save(payment));
+        return paymentMapper.toDto(savedPayment);
     }
 
     @Override

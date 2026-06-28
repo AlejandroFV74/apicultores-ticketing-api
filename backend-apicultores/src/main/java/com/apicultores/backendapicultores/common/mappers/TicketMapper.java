@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 public class TicketMapper {
     public Ticket toEntityCreate(Reservation reservation, Payment payment, Seat seat, String qrCode){
         return Ticket.builder()
+                .reservation(reservation)
                 .payment(payment)
                 .seat(seat)
                 .owner(reservation.getUser())
