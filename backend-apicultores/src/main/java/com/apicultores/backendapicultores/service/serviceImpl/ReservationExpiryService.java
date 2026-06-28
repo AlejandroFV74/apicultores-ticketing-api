@@ -1,10 +1,13 @@
 package com.apicultores.backendapicultores.service.serviceImpl;
 
 import com.apicultores.backendapicultores.common.enums.ReservationStatus;
+import com.apicultores.backendapicultores.common.enums.SeatStatus;
 import com.apicultores.backendapicultores.domain.entity.Reservation;
 import com.apicultores.backendapicultores.domain.entity.ReservationStatusHistory;
+import com.apicultores.backendapicultores.domain.entity.Seat;
 import com.apicultores.backendapicultores.repository.ReservationRepository;
 import com.apicultores.backendapicultores.repository.ReservationStatusHistoryRepository;
+import com.apicultores.backendapicultores.repository.SeatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +23,7 @@ public class ReservationExpiryService {
     private final ReservationRepository reservationRepository;
     private final ReservationStatusHistoryRepository historyRepository;
     private final Clock clock;
+    private final SeatRepository seatRepository;
 
     @Transactional
     public List<Reservation> expireReservations() {
@@ -27,6 +31,13 @@ public class ReservationExpiryService {
         List<Reservation> toExpire = reservationRepository.findByExpiresAtBeforeAndStatusNotIn(now, List.of(ReservationStatus.COMPLETED, ReservationStatus.EXPIRED));
 
         for (Reservation r : toExpire) {
+
+            for (Seat seat : r.getSeats()) {
+                seat.setStatus(SeatStatus.AVAILABLE);
+            }
+
+            seatRepository.saveAll(r.getSeats());
+
             String from = r.getStatus() != null ? r.getStatus().name() : null;
             r.setStatus(ReservationStatus.EXPIRED);
             reservationRepository.save(r);

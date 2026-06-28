@@ -1,11 +1,13 @@
 package com.apicultores.backendapicultores.service.serviceImpl;
 
 import com.apicultores.backendapicultores.common.enums.ReservationStatus;
+import com.apicultores.backendapicultores.common.enums.SeatStatus;
 import com.apicultores.backendapicultores.common.mappers.PaymentMapper;
 import com.apicultores.backendapicultores.domain.dto.request.PaymentRequest;
 import com.apicultores.backendapicultores.domain.dto.response.PaymentResponse;
 import com.apicultores.backendapicultores.domain.entity.Payment;
 import com.apicultores.backendapicultores.domain.entity.Reservation;
+import com.apicultores.backendapicultores.domain.entity.Seat;
 import com.apicultores.backendapicultores.exception.custom.BadRequestException;
 import com.apicultores.backendapicultores.exception.custom.ResourceNotFoundException;
 import com.apicultores.backendapicultores.repository.PaymentRepository;
@@ -42,8 +44,12 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment payment = paymentMapper.toEntityCreate(request, reservation);
 
-        reservation.setStatus(ReservationStatus.ACTIVE);
+        reservation.setStatus(ReservationStatus.COMPLETED);
         reservationRepository.save(reservation);
+
+        for (Seat seat : reservation.getSeats()) {
+            seat.setStatus(SeatStatus.SOLD);
+        }
 
         return paymentMapper.toDto(paymentRepository.save(payment));
     }

@@ -160,9 +160,16 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    @Transactional
     public void deleteReservation(UUID reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationNotFoundException("La reserva con dicho Id no se encuentra"));
+
+        for (Seat seat : reservation.getSeats()) {
+            seat.setStatus(SeatStatus.AVAILABLE);
+        }
+
+        seatRepository.saveAll(reservation.getSeats());
         reservationRepository.delete(reservation);
     }
 }
