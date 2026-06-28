@@ -19,8 +19,9 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ReservationResponse {
     private UUID id;
-    private List<SeatResponse> seats;
+    //private List<SeatResponse> seats;
     private ReservationStatus status;
-    private LocalDateTime experiesAt;
+    private LocalDateTime expiresAt;
     private LocalDateTime createdAt;
+    private UUID eventId;
 }

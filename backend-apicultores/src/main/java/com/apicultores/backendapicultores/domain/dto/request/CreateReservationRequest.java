@@ -15,6 +15,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateReservationRequest {
+    @NotNull(message = "Event id is required")
+    private UUID eventId;
     @NotNull(message = "Asientos no deben ser nulos")
     private List<UUID> seatsIds;
 }

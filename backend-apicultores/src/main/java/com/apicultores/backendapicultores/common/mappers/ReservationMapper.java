@@ -17,12 +17,11 @@ import java.util.stream.Collectors;
 
 @Component
 public class ReservationMapper {
-    public Reservation toEntityCreate(User user, List<Seat> seats){
+    public Reservation toEntityCreate(User user, List<Seat> seats, Event event){
         if (seats == null || seats.isEmpty()) {
             throw new IllegalArgumentException("Al menos se necesita un asiento");
         }
-        // Asumir que todos pertencen al evento y validar
-        Event event = seats.get(0).getEvent();
+
         for (Seat s : seats) {
             if (s.getEvent() == null || !s.getEvent().getEventId().equals(event.getEventId())) {
                 throw new IllegalArgumentException("Todos los asientos deben pertencer al mismo evento");
@@ -42,24 +41,13 @@ public class ReservationMapper {
     }
 
     public ReservationResponse toDto(Reservation reservation){
-        List<SeatResponse> seatsDto = reservation.getSeats()
-                .stream()
-                .map(s -> SeatResponse.builder()
-                        .id(s.getSeatId())
-                        .seatNumber(s.getSeatNumber())
-                        .seatType(s.getSeatType())
-                        .price(s.getPrice())
-                        .status(s.getStatus())
-                        .createdAt(s.getCreatedAt())
-                        .build())
-                .collect(Collectors.toList());
 
         return ReservationResponse.builder()
                 .id(reservation.getReservationId())
-                .seats(seatsDto)
+                .eventId(reservation.getEvent().getEventId())
                 .status(reservation.getStatus())
                 .createdAt(reservation.getCreatedAt())
-                .experiesAt(reservation.getExpiresAt())
+                .expiresAt(reservation.getExpiresAt())
                 .build();
     }
 }
