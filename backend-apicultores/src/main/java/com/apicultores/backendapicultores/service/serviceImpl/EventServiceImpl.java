@@ -6,7 +6,9 @@ import com.apicultores.backendapicultores.config.security.CurrentUserProvider;
 import com.apicultores.backendapicultores.domain.dto.request.CreateEventRequest;
 import com.apicultores.backendapicultores.domain.dto.request.SeatConfigurationRequest;
 import com.apicultores.backendapicultores.domain.dto.request.UpdateEventRequest;
+import com.apicultores.backendapicultores.domain.dto.response.EventReportResponse;
 import com.apicultores.backendapicultores.domain.dto.response.EventResponse;
+import com.apicultores.backendapicultores.domain.dto.response.SeatReportDTO;
 import com.apicultores.backendapicultores.domain.entity.Event;
 import com.apicultores.backendapicultores.domain.entity.Seat;
 import com.apicultores.backendapicultores.exception.custom.BadRequestException;
@@ -184,6 +186,53 @@ public class EventServiceImpl implements EventService {
         return events.stream()
                 .map(mapper::toDto)
                 .toList();
+    }
+
+    @Override
+    public EventReportResponse getEventReport(UUID eventId) {
+
+        Event event = repository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+
+        UUID userId = currentUserProvider.getCurrentUserId();
+        String role = currentUserProvider.getCurrentUserRole();
+
+        if (!event.getOrganizerId().equals(userId) && !role.equals("ADMIN")) {
+            throw new BadRequestException("No tienes permiso para ver este reporte");
+        }
+
+        List<Seat> seats = seatRepository.findByEventEventId(eventId);
+
+        SeatReportDTO vipReport = new SeatReportDTO(0,0,0,0,0);
+        SeatReportDTO generalReport = new SeatReportDTO(0,0,0,0,0);
+
+        for (Seat seat : seats) {
+
+            SeatReportDTO report;
+
+            if (seat.getSeatType().name().equals("VIP")) {
+                report = vipReport;
+            } else {
+                report = generalReport;
+            }
+
+            report.setTotal(report.getTotal() + 1);
+
+            switch (seat.getStatus()) {
+                case AVAILABLE -> report.setAvailable(report.getAvailable() + 1);
+                case RESERVED -> report.setReserved(report.getReserved() + 1);
+                case SOLD -> {
+                    report.setSold(report.getSold() + 1);
+                    report.setRevenue(report.getRevenue() + seat.getPrice());
+                }
+            }
+        }
+
+        return EventReportResponse.builder()
+                .eventId(eventId)
+                .VIP(vipReport)
+                .GENERAL(generalReport)
+                .build();
     }
 
 }

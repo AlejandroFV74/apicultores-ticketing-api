@@ -19,7 +19,6 @@ import java.util.UUID;
 public interface SeatRepository extends JpaRepository<Seat, UUID> {
     @EntityGraph(attributePaths = {"event","tickets"})
     List<Seat> findAllById(Iterable<UUID> ids);
-
     long countByEvent_EventIdAndSeatTypeAndStatus(UUID eventId, @NotNull SeatType seatType, SeatStatus seatStatus);
 
     @Query("SELECT s FROM Seat s " +

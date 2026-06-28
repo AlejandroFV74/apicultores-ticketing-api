@@ -3,6 +3,7 @@ package com.apicultores.backendapicultores.controller;
 import com.apicultores.backendapicultores.domain.dto.request.CreateEventRequest;
 import com.apicultores.backendapicultores.domain.dto.request.UpdateEventRequest;
 import com.apicultores.backendapicultores.domain.dto.response.EventResponse;
+import com.apicultores.backendapicultores.domain.dto.response.EventReportResponse;
 import com.apicultores.backendapicultores.service.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -83,6 +84,13 @@ public class EventController {
 
         return ResponseEntity.noContent().build();
 
+    }
+
+    @PreAuthorize("hasAnyRole('ORGANIZER','ADMIN')")
+    @GetMapping("/{id}/report")
+    public ResponseEntity<EventReportResponse> getReport(@PathVariable UUID id) {
+
+        return ResponseEntity.ok(service.getEventReport(id));
     }
 
 }
