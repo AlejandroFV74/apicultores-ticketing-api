@@ -5,19 +5,33 @@ import com.apicultores.backendapicultores.domain.dto.request.PaymentRequest;
 import com.apicultores.backendapicultores.domain.dto.response.PaymentResponse;
 import com.apicultores.backendapicultores.domain.entity.Payment;
 import com.apicultores.backendapicultores.domain.entity.Reservation;
+import com.apicultores.backendapicultores.domain.entity.Seat;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.util.UUID;
 
 @Component
 public class PaymentMapper {
 
     public Payment toEntityCreate(PaymentRequest request, Reservation reservation) {
+        BigDecimal total = reservation.getSeats()
+                .stream()
+                .map(seat -> BigDecimal.valueOf(seat.getPrice()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        String provider = switch (request.getPaymentMethod().toUpperCase()) {
+            case "STRIPE" -> "STRIPE";
+            default -> "LOCAL";
+        };
+
         return Payment.builder()
                 .reservation(reservation)
-                .amount(request.getAmount())
+                .amount(total)
                 .paymentMethod(request.getPaymentMethod())
-                .provider(request.getProvider())
-                .providerReference(request.getProviderReference())
-                .status(PaymentStatus.COMPLETED)
+                .provider(provider)
+                .providerReference(provider + "-" + UUID.randomUUID())
+                .status(PaymentStatus.PENDING)
                 .build();
     }
 

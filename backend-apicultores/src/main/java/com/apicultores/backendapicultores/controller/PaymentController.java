@@ -4,6 +4,7 @@ import com.apicultores.backendapicultores.domain.dto.request.PaymentRequest;
 import com.apicultores.backendapicultores.domain.dto.response.GeneralResponse;
 import com.apicultores.backendapicultores.domain.entity.Payment;
 import com.apicultores.backendapicultores.repository.PaymentRepository;
+import com.apicultores.backendapicultores.service.CheckoutService;
 import com.apicultores.backendapicultores.service.PaymentService;
 import com.apicultores.backendapicultores.service.StripeService;
 import com.stripe.exception.StripeException;
@@ -27,6 +28,7 @@ public class PaymentController {
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
     private final StripeService stripeService;
+    private final CheckoutService checkoutService;
 
     @PostMapping
     public ResponseEntity<GeneralResponse> createPayment(@RequestBody PaymentRequest request) {
@@ -77,6 +79,7 @@ public class PaymentController {
 
     @GetMapping("/success")
     public String paymentSuccess(@RequestParam("payment_id") UUID paymentId) {
+        checkoutService.confirmCheckout(paymentId);
         return "¡Pago procesado con éxito!";
     }
 

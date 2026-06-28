@@ -4,6 +4,8 @@ import com.apicultores.backendapicultores.domain.dto.request.CreateTicketRequest
 import com.apicultores.backendapicultores.domain.dto.request.RefundTicketRequest;
 import com.apicultores.backendapicultores.domain.dto.request.TransferTicketRequest;
 import com.apicultores.backendapicultores.domain.dto.response.GeneralResponse;
+import com.apicultores.backendapicultores.domain.entity.Payment;
+import com.apicultores.backendapicultores.domain.entity.Reservation;
 import com.apicultores.backendapicultores.services.TicketValidationService;
 import com.apicultores.backendapicultores.services.ticket.CancelOrRefundTicketService;
 import com.apicultores.backendapicultores.services.ticket.CreateTicketService;
@@ -30,11 +32,11 @@ public class TicketController {
     private final TicketTransferService ticketTransferService;
 
     @PostMapping("/generate")
-    public ResponseEntity<GeneralResponse> generateTicket(@RequestBody CreateTicketRequest request){
+    public ResponseEntity<GeneralResponse> generateTicket(@RequestBody Reservation reservation, Payment payment){
         return buildResponse(
                 "Tickets creados exitosamente",
                 HttpStatus.CREATED,
-                createTicketService.generateTicketsForReservation(request)
+                createTicketService.generateTicketsForReservation(reservation, payment)
         );
     }
 

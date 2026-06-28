@@ -31,4 +31,7 @@ public interface SeatRepository extends JpaRepository<Seat, UUID> {
                                       @Param("seatType") SeatType seatType,
                                       @Param("status") SeatStatus status,
                                       Pageable pageable);
+  
+    @EntityGraph(attributePaths = {"event"})
+    List<Seat> findByEventEventId(UUID eventId);
 }

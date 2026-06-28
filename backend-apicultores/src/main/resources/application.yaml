@@ -83,4 +83,4 @@ stripe:
 app:
   reservation:
     scheduler:
-      enabled: false
+      enabled: true

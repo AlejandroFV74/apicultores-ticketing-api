@@ -1,5 +1,6 @@
 package com.apicultores.backendapicultores.repository;
 
+import com.apicultores.backendapicultores.common.enums.TicketStatus;
 import com.apicultores.backendapicultores.domain.entity.Ticket;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,51 +14,67 @@ import java.util.UUID;
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, UUID> {
     Optional<Ticket> findByQrCode(String qrCode);
-  
-    @Query("SELECT t FROM Ticket t " +
-            "JOIN FETCH t.seat s " +
-            "JOIN FETCH s.event " +
-            "JOIN FETCH t.owner o " +
-            "WHERE o.id = :ownerId")
-    Optional<List<Ticket>> findByOwner_UserId(@Param("ownerId") UUID owner_id);
-    @Query("SELECT t FROM Ticket t " +
-            "JOIN FETCH t.seat s " +
-            "JOIN FETCH s.event " +
-            "JOIN FETCH t.owner")
-    Optional<List<Ticket>> findAllWithSeat();
+    @Query("""
+        SELECT DISTINCT t FROM Ticket t
+        JOIN FETCH t.seat s
+        JOIN FETCH s.event
+        JOIN FETCH t.owner o
+        WHERE o.userId = :ownerId
+    """)
+    List<Ticket> findByOwnerWithEagerLoad(@Param("ownerId") UUID ownerId);
 
-    @Query("SELECT COUNT(t) FROM Ticket t " +
-            "WHERE t.owner.id = :userId " +
-            "AND t.seat.event.eventId = :eventId " +
-            "AND t.status IN ('PAID', 'USED')")
-    long countTicketByUserAndEvent(@Param("userId") UUID userId, @Param("eventId") UUID eventId);
+    @Query("""
+        SELECT DISTINCT t FROM Ticket t
+        JOIN FETCH t.seat s
+        JOIN FETCH s.event
+        JOIN FETCH t.owner o
+        WHERE o.userId = :ownerId
+        AND t.status = :status
+    """)
+    List<Ticket> findByOwnerAndStatus(
+            @Param("ownerId") UUID ownerId,
+            @Param("status") TicketStatus status
+    );
 
-    @Query("SELECT t FROM Ticket t " +
-            "JOIN FETCH t.seat s " +
-            "JOIN FETCH s.event " +
-            "JOIN FETCH t.owner o " +
-            "WHERE o.id = :ownerId AND t.status = USED")
-    Optional<List<Ticket>> findByStatusUsedAndOwner(@Param("ownerId") UUID owner_id);
+    @Query("""
+        SELECT COUNT(t) FROM Ticket t
+        WHERE t.owner.userId = :userId
+        AND t.seat.event.eventId = :eventId
+        AND t.status IN :statuses
+    """)
+    long countTicketByUserAndEvent(
+            @Param("userId") UUID userId,
+            @Param("eventId") UUID eventId,
+            @Param("statuses") List<TicketStatus> statuses
+    );
 
-
-    @Query("SELECT t FROM Ticket t " +
-            "JOIN FETCH t.seat s " +
-            "JOIN FETCH s.event " +
-            "JOIN FETCH t.owner o " +
-            "WHERE o.id = :ownerId AND t.status = PAID")
-    Optional<List<Ticket>> findActiveTicketsByOwner(@Param("ownerId") UUID owner_id);
-    Optional<List<Ticket>> findByOwner(UUID id);
-
-    @Query("SELECT DISTINCT t FROM Ticket t " +
-            "JOIN FETCH t.seat s " +
-            "JOIN FETCH s.event " +
-            "JOIN FETCH t.owner")
+    @Query("""
+        SELECT DISTINCT t FROM Ticket t
+        JOIN FETCH t.seat s
+        JOIN FETCH s.event
+        JOIN FETCH t.owner
+    """)
     List<Ticket> findAllWithEagerLoad();
 
-    @Query("SELECT DISTINCT t FROM Ticket t " +
-            "JOIN FETCH t.seat s " +
-            "JOIN FETCH s.event " +
-            "JOIN FETCH t.owner " +
-            "WHERE t.owner.userId = :ownerId")
-    Optional<List<Ticket>> findByOwnerWithEagerLoad(@Param("ownerId") UUID ownerId);
+    @Query("""
+        SELECT DISTINCT t FROM Ticket t
+        JOIN FETCH t.seat s
+        JOIN FETCH s.event
+        JOIN FETCH t.owner
+        WHERE t.reservation.reservationId = :reservationId
+    """)
+    List<Ticket> findByReservationWithEagerLoad(@Param("reservationId") UUID reservationId);
+
+    @Query("""
+    SELECT DISTINCT t FROM Ticket t
+    JOIN FETCH t.seat s
+    JOIN FETCH s.event
+    JOIN FETCH t.owner o
+    WHERE o.userId = :ownerId
+    AND t.status = :status
+""")
+    List<Ticket> findActiveTicketsByOwner(
+            @Param("ownerId") UUID ownerId,
+            @Param("status") TicketStatus status
+    );
 }
