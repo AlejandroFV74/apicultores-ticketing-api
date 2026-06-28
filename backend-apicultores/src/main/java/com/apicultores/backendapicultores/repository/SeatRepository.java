@@ -10,6 +10,8 @@ import java.util.UUID;
 
 @Repository
 public interface SeatRepository extends JpaRepository<Seat, UUID> {
+    List<Seat> findByEventId(UUID eventId);
+  
     @EntityGraph(attributePaths = {"event","tickets"})
     List<Seat> findAllById(Iterable<UUID> ids);
 }
