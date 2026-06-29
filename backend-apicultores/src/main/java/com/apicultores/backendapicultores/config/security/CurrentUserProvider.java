@@ -50,4 +50,7 @@ public class CurrentUserProvider {
                 .orElseThrow(() -> new RuntimeException("User role not found"));
     }
 
+    public boolean isCurrentUserAdmin() {
+        return "ADMIN".equals(getCurrentUserRole());
+    }
 }
