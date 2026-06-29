@@ -27,4 +27,5 @@ public interface WaitlistRepository extends JpaRepository<Waitlist, UUID> {
             UUID eventId, SeatType seatType, WaitlistStatus status, Pageable pageable);
 
     Optional<Waitlist> findByReservation_ReservationId(UUID reservationId);
+    long countByEvent_EventIdAndStatus(UUID eventId, WaitlistStatus status);
 }
