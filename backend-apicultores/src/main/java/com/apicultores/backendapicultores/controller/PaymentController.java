@@ -1,8 +1,11 @@
 package com.apicultores.backendapicultores.controller;
 
+import com.apicultores.backendapicultores.config.security.CurrentUserProvider;
 import com.apicultores.backendapicultores.domain.dto.request.PaymentRequest;
 import com.apicultores.backendapicultores.domain.dto.response.GeneralResponse;
 import com.apicultores.backendapicultores.domain.entity.Payment;
+import com.apicultores.backendapicultores.exception.custom.BadRequestException;
+import com.apicultores.backendapicultores.exception.custom.PaymentNotFoundException;
 import com.apicultores.backendapicultores.repository.PaymentRepository;
 import com.apicultores.backendapicultores.service.CheckoutService;
 import com.apicultores.backendapicultores.service.PaymentService;
@@ -18,6 +21,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -30,6 +34,7 @@ public class PaymentController {
     private final PaymentRepository paymentRepository;
     private final StripeService stripeService;
     private final CheckoutService checkoutService;
+    private final CurrentUserProvider currentUserProvider;
 
     @PreAuthorize("hasRole('BUYER')")
     @PostMapping
@@ -72,12 +77,24 @@ public class PaymentController {
     }
 
     @PreAuthorize("hasRole('BUYER')")
+    @PostMapping("/checkout/{paymentId}/session")
+    public ResponseEntity<GeneralResponse> createStripeCheckoutSession(@PathVariable UUID paymentId) throws StripeException {
+        Payment payment = getCheckoutPaymentForCurrentBuyer(paymentId);
+        String checkoutUrl = stripeService.createCheckoutSession(payment);
+
+        return buildResponse(
+                "Sesión de Stripe creada exitosamente",
+                HttpStatus.OK,
+                Map.of("checkoutUrl", checkoutUrl)
+        );
+    }
+
+    @PreAuthorize("hasRole('BUYER')")
     @GetMapping("/checkout/{paymentId}")
     public ResponseEntity<Void> redirectToStripeCheckout(@PathVariable UUID paymentId) throws StripeException {
-        Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new RuntimeException("Pago no encontrado"));
-
+        Payment payment = getCheckoutPaymentForCurrentBuyer(paymentId);
         String checkoutUrl = stripeService.createCheckoutSession(payment);
+
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(URI.create(checkoutUrl));
         return new ResponseEntity<>(headers,HttpStatus.SEE_OTHER);
@@ -92,6 +109,21 @@ public class PaymentController {
     @GetMapping("/cancel")
     public String paymentCancel(@RequestParam("payment_id") UUID paymentId) {
         return "El pago fue cancelado por el usuario";
+    }
+
+
+    private Payment getCheckoutPaymentForCurrentBuyer(UUID paymentId) {
+        Payment payment = paymentRepository.findByIdWithReservationAndUser(paymentId)
+                .orElseThrow(() -> new PaymentNotFoundException("Pago no encontrado"));
+
+        UUID currentUserId = currentUserProvider.getCurrentUserId();
+        UUID paymentOwnerId = payment.getReservation().getUser().getUserId();
+
+        if (!paymentOwnerId.equals(currentUserId)) {
+            throw new BadRequestException("Solo el comprador de la reserva puede iniciar este pago");
+        }
+
+        return payment;
     }
 
     private ResponseEntity<GeneralResponse> buildResponse(String message, HttpStatus status, Object data) {
