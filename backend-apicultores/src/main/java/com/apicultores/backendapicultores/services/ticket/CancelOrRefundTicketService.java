@@ -1,20 +1,20 @@
 package com.apicultores.backendapicultores.services.ticket;
 
 import com.apicultores.backendapicultores.common.enums.PaymentStatus;
+import com.apicultores.backendapicultores.common.enums.SeatStatus;
 import com.apicultores.backendapicultores.common.enums.TicketStatus;
 import com.apicultores.backendapicultores.common.mappers.TicketMapper;
 import com.apicultores.backendapicultores.domain.dto.request.RefundTicketRequest;
 import com.apicultores.backendapicultores.domain.dto.response.ticket.TicketResponse;
 import com.apicultores.backendapicultores.domain.entity.Payment;
 import com.apicultores.backendapicultores.domain.entity.Refund;
+import com.apicultores.backendapicultores.domain.entity.Seat;
 import com.apicultores.backendapicultores.domain.entity.Ticket;
 import com.apicultores.backendapicultores.exception.custom.DueDateException;
 import com.apicultores.backendapicultores.exception.custom.TicketNotFoundException;
 import com.apicultores.backendapicultores.exception.custom.TicketStatusException;
-import com.apicultores.backendapicultores.repository.PaymentRepository;
-import com.apicultores.backendapicultores.repository.RefundRepository;
-import com.apicultores.backendapicultores.repository.TicketRepository;
-import com.apicultores.backendapicultores.repository.UserRepository;
+import com.apicultores.backendapicultores.repository.*;
+import com.apicultores.backendapicultores.services.waitlist.WaitlistService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +30,8 @@ public class CancelOrRefundTicketService {
     private final RefundRepository refundRepository;
     private final UserRepository userRepository;
     private final TicketMapper ticketMapper;
+    private final SeatRepository seatRepository;
+    private final WaitlistService waitlistService;
 
     @Transactional
     public TicketResponse cancelAndRefund(RefundTicketRequest request){
@@ -61,6 +63,11 @@ public class CancelOrRefundTicketService {
                 .build();
 
         refundRepository.save(refund);
+
+        Seat seat = ticket.getSeat();
+        seat.setStatus(SeatStatus.AVAILABLE);
+        seatRepository.save(seat);
+        waitlistService.processFreedSeat(seat.getEvent().getEventId(), seat.getSeatType());
         return ticketMapper.toDto(ticket);
     }
 }
