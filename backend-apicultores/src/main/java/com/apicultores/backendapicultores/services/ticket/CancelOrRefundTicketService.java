@@ -10,11 +10,14 @@ import com.apicultores.backendapicultores.domain.dto.request.RefundTicketRequest
 import com.apicultores.backendapicultores.domain.dto.response.ticket.TicketResponse;
 import com.apicultores.backendapicultores.domain.entity.Payment;
 import com.apicultores.backendapicultores.domain.entity.Refund;
+import com.apicultores.backendapicultores.domain.entity.Seat;
 import com.apicultores.backendapicultores.domain.entity.Ticket;
 import com.apicultores.backendapicultores.exception.custom.BadRequestException;
 import com.apicultores.backendapicultores.exception.custom.DueDateException;
 import com.apicultores.backendapicultores.exception.custom.TicketNotFoundException;
 import com.apicultores.backendapicultores.exception.custom.TicketStatusException;
+import com.apicultores.backendapicultores.repository.*;
+import com.apicultores.backendapicultores.services.waitlist.WaitlistService;
 import com.apicultores.backendapicultores.repository.PaymentRepository;
 import com.apicultores.backendapicultores.repository.RefundRepository;
 import com.apicultores.backendapicultores.repository.ReservationRepository;
@@ -41,6 +44,8 @@ public class CancelOrRefundTicketService {
     private final ReservationRepository reservationRepository;
     private final CurrentUserProvider currentUserProvider;
     private final TicketMapper ticketMapper;
+    private final SeatRepository seatRepository;
+    private final WaitlistService waitlistService;
 
     @Transactional
     public TicketResponse cancelAndRefund(RefundTicketRequest request){
@@ -69,6 +74,11 @@ public class CancelOrRefundTicketService {
                 .build();
 
         refundRepository.save(refund);
+
+        Seat seat = ticket.getSeat();
+        seat.setStatus(SeatStatus.AVAILABLE);
+        seatRepository.save(seat);
+        waitlistService.processFreedSeat(seat.getEvent().getEventId(), seat.getSeatType());
         return ticketMapper.toDto(ticket);
     }
 

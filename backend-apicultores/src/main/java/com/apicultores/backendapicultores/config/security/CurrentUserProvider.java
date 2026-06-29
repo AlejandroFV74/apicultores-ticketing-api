@@ -3,6 +3,9 @@ package com.apicultores.backendapicultores.config.security;
 import com.apicultores.backendapicultores.exception.custom.BadRequestException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -30,5 +33,24 @@ public class CurrentUserProvider {
         }
 
         return UUID.fromString(userIdString);
+    }
+
+    public String getCurrentUserRole() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("No authenticated user found");
+        }
+
+        return authentication.getAuthorities().stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .map(role -> role.replace("ROLE_", ""))
+                .orElseThrow(() -> new RuntimeException("User role not found"));
+    }
+
+    public boolean isCurrentUserAdmin() {
+        return "ADMIN".equals(getCurrentUserRole());
     }
 }

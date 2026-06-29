@@ -23,7 +23,7 @@ public class Ticket {
     private UUID ticket_id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reservation_id", nullable = false)
+    @JoinColumn(name = "reservation_id", nullable = true)
     private Reservation reservation;
 
     @ManyToOne(fetch = FetchType.LAZY)
