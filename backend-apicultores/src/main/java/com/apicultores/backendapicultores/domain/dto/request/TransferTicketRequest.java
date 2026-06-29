@@ -13,5 +13,5 @@ import java.util.UUID;
 @AllArgsConstructor
 public class TransferTicketRequest {
     private UUID ticketId;
-    private UUID toUserId;
+    private String toUserEmail;
 }
