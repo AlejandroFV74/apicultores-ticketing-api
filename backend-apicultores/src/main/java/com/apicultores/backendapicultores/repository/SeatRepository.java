@@ -3,11 +3,11 @@ package com.apicultores.backendapicultores.repository;
 import com.apicultores.backendapicultores.common.enums.SeatStatus;
 import com.apicultores.backendapicultores.common.enums.SeatType;
 import com.apicultores.backendapicultores.domain.entity.Seat;
-import jakarta.validation.constraints.NotNull;
-import org.springframework.data.domain.PageRequest;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -20,8 +20,14 @@ public interface SeatRepository extends JpaRepository<Seat, UUID> {
     @EntityGraph(attributePaths = {"event","tickets"})
     List<Seat> findAllById(Iterable<UUID> ids);
 
-    long countByEvent_EventIdAndSeatTypeAndStatus(UUID eventId, @NotNull SeatType seatType, SeatStatus seatStatus);
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    List<Seat> findBySeatIdIn(List<UUID> seatIds);
 
+    long countByEvent_EventIdAndSeatTypeAndStatus(UUID eventId, SeatType seatType, SeatStatus status);
+
+    List<Seat> findByEvent_EventId(UUID eventId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT s FROM Seat s " +
             "WHERE s.event.eventId = :eventId " +
             "AND s.seatType = :seatType " +
