@@ -24,7 +24,7 @@ public class EventController {
 
     private final EventService service;
 
-    @PreAuthorize("hasRole('ORGANIZER')")
+    @PreAuthorize("hasAnyRole('ORGANIZER', 'ADMIN')")
     @PostMapping
     public ResponseEntity<EventResponse> create(
             @Valid @RequestBody CreateEventRequest request) {
@@ -51,7 +51,7 @@ public class EventController {
     }
 
 
-    @PreAuthorize("hasRole('ORGANIZER')")
+    @PreAuthorize("hasAnyRole('ORGANIZER','ADMIN')")
     @GetMapping("/my-events")
     public ResponseEntity<List<EventResponse>> getMyEvents() {
         return ResponseEntity.ok(service.getMyEvents());
@@ -65,7 +65,7 @@ public class EventController {
     }
 
 
-    @PreAuthorize("hasRole('ORGANIZER')")
+    @PreAuthorize("hasAnyRole('ORGANIZER', 'ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<EventResponse> update(
             @PathVariable UUID id,
@@ -76,7 +76,7 @@ public class EventController {
         return ResponseEntity.ok(updated);
     }
 
-    @PreAuthorize("hasRole('ORGANIZER')")
+    @PreAuthorize("hasAnyRole('ORGANIZER', 'ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<EventResponse> delete(@PathVariable UUID id) {
 

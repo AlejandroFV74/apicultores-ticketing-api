@@ -138,8 +138,8 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
         UUID userId = currentUserProvider.getCurrentUserId();
-
-        if (!event.getOrganizerId().equals(userId)) {
+        boolean isAdmin = currentUserProvider.isCurrentUserAdmin();
+        if (!isAdmin && !event.getOrganizerId().equals(userId)) {
             throw new BadRequestException("No tienes permiso para modificar este evento");
         }
 
@@ -153,8 +153,9 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
         UUID userId = currentUserProvider.getCurrentUserId();
+        boolean isAdmin = currentUserProvider.isCurrentUserAdmin();
 
-        if (!event.getOrganizerId().equals(userId)) {
+        if (!isAdmin && !event.getOrganizerId().equals(userId)) {
             throw new BadRequestException("No tienes permiso para eliminar este evento");
         }
 
