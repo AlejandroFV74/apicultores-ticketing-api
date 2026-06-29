@@ -16,6 +16,7 @@ spring:
       connection-timeout: 30000
 
   jpa:
+    defer-datasource-initialization: true
     hibernate:
       ddl-auto: update
     show-sql: ${SHOW_SQL:true}
