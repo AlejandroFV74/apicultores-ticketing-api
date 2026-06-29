@@ -278,35 +278,37 @@ public class EventServiceImpl implements EventService {
                 && !event.getStartDate().isBefore(LocalDateTime.now());
     }
 
-    @Override
-    public EventResponse updateEvent(UUID id, UpdateEventRequest request) {
+//    @Override
+//    public EventResponse updateEvent(UUID id, UpdateEventRequest request) {
+//
+//        Event event = repository.findById(id)
+//                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+//
+//        UUID userId = currentUserProvider.getCurrentUserId();
+//        boolean isAdmin = currentUserProvider.isCurrentUserAdmin();
+//        if (!isAdmin && !event.getOrganizerId().equals(userId)) {
+//            throw new BadRequestException("No tienes permiso para modificar este evento");
+//        }
+//
+//        return mapper.toDto(repository.save(mapper.toEntityUpdate(request, event)));
+//    }
 
-        Event event = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+//    @Override
+//    public void deleteEvent(UUID id) {
+//
+//        Event event = repository.findById(id)
+//                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+//
+//        UUID userId = currentUserProvider.getCurrentUserId();
+//        boolean isAdmin = currentUserProvider.isCurrentUserAdmin();
+//
+//        if (!isAdmin && !event.getOrganizerId().equals(userId)) {
+//            throw new BadRequestException("No tienes permiso para eliminar este evento");
+//        }
+//
+//        repository.delete(event);
+//    }
 
-        UUID userId = currentUserProvider.getCurrentUserId();
-        boolean isAdmin = currentUserProvider.isCurrentUserAdmin();
-        if (!isAdmin && !event.getOrganizerId().equals(userId)) {
-            throw new BadRequestException("No tienes permiso para modificar este evento");
-        }
-
-        return mapper.toDto(repository.save(mapper.toEntityUpdate(request, event)));
-    }
-
-    @Override
-    public void deleteEvent(UUID id) {
-
-        Event event = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
-
-        UUID userId = currentUserProvider.getCurrentUserId();
-        boolean isAdmin = currentUserProvider.isCurrentUserAdmin();
-
-        if (!isAdmin && !event.getOrganizerId().equals(userId)) {
-            throw new BadRequestException("No tienes permiso para eliminar este evento");
-        }
-
-        repository.delete(event);
     private boolean isCurrentOrganizer(Event event) {
         UUID userId = getAuthenticatedUserIdOrNull();
         return userId != null && event.getOrganizerId().equals(userId);

@@ -44,7 +44,6 @@ public class CancelOrRefundTicketService {
     private final ReservationRepository reservationRepository;
     private final CurrentUserProvider currentUserProvider;
     private final TicketMapper ticketMapper;
-    private final SeatRepository seatRepository;
     private final WaitlistService waitlistService;
 
     @Transactional

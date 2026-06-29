@@ -58,7 +58,7 @@ public class SecurityConfig {
                                 "/api/tickets",
                                 "/api/discounts/event/*",
                                 "/api/discounts/quote",
-                                "/api/tickets/**"
+                                "/api/tickets/**",
 
                                 "/api/payments/success",
                                 "/api/payments/cancel"

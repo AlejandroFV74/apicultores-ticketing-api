@@ -1,6 +1,7 @@
 package com.apicultores.backendapicultores.repository;
 
 import com.apicultores.backendapicultores.common.enums.SeatStatus;
+import com.apicultores.backendapicultores.common.enums.SeatType;
 import com.apicultores.backendapicultores.domain.entity.Seat;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.PageRequest;
