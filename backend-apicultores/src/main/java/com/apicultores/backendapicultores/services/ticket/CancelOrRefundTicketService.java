@@ -22,6 +22,8 @@ import com.apicultores.backendapicultores.repository.SeatRepository;
 import com.apicultores.backendapicultores.repository.TicketRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -86,8 +88,8 @@ public class CancelOrRefundTicketService {
         }
 
         UUID currentUserId = currentUserProvider.getCurrentUserId();
-        if (currentUserId == null || !ticket.getOwner().getUserId().equals(currentUserId)) {
-            throw new BadRequestException("Solo el propietario puede reembolsar el ticket");
+        if (!isCurrentAdmin() && (currentUserId == null || !ticket.getOwner().getUserId().equals(currentUserId))) {
+            throw new BadRequestException("Solo el propietario o un administrador puede reembolsar el ticket");
         }
 
         if (ticket.getSeat().getPrice() == null) {
@@ -124,5 +126,11 @@ public class CancelOrRefundTicketService {
             reservation.setStatus(ReservationStatus.EXPIRED);
             reservationRepository.save(reservation);
         }
+    }
+    private boolean isCurrentAdmin() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null
+                && authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
     }
 }

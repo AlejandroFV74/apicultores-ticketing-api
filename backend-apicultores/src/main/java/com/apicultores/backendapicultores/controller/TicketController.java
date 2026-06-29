@@ -14,6 +14,7 @@ import com.apicultores.backendapicultores.services.ticket.TicketTransferService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -31,6 +32,7 @@ public class TicketController {
     private final TicketValidationService ticketValidationService;
     private final TicketTransferService ticketTransferService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/generate")
     public ResponseEntity<GeneralResponse> generateTicket(@RequestBody Reservation reservation, Payment payment){
         return buildResponse(
@@ -40,6 +42,7 @@ public class TicketController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/cancel-refund")
     public ResponseEntity<GeneralResponse> cancelAndRefundTicket(@RequestBody RefundTicketRequest request){
         return buildResponse(
@@ -49,6 +52,7 @@ public class TicketController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("")
     public ResponseEntity<GeneralResponse> getTickets(){
             return buildResponse(
@@ -58,6 +62,7 @@ public class TicketController {
             );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/owner/{owner_id}")
     public ResponseEntity<GeneralResponse> getTicketByOwner(@PathVariable(required = true) UUID owner_id){
       return buildResponse(
@@ -68,6 +73,7 @@ public class TicketController {
     }
 
   
+    @PreAuthorize("hasRole('BUYER')")
     @PostMapping("/transfer")
     public ResponseEntity<GeneralResponse> transferTicket(@RequestBody TransferTicketRequest request){
         return buildResponse(
@@ -77,6 +83,7 @@ public class TicketController {
         );
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'ORGANIZER')")
     @PostMapping("/validation/{qr_code}")
     public ResponseEntity<GeneralResponse> validateTicket(@PathVariable(required = true) String qr_code){
         return buildResponse(
@@ -86,6 +93,7 @@ public class TicketController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/history/{owner_id}")
     public ResponseEntity<GeneralResponse> getHistoryTickets(@PathVariable(required = true) UUID owner_id){
         return buildResponse(
@@ -95,6 +103,7 @@ public class TicketController {
         );
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'BUYER')")
     @GetMapping("/mytickets/{owner_id}")
     public ResponseEntity<GeneralResponse>  getMyTickets(@PathVariable(required = true) UUID owner_id){
         return buildResponse(

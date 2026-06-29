@@ -23,7 +23,7 @@ public class EventController {
 
     private final EventService service;
 
-    @PreAuthorize("hasRole('ORGANIZER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<EventResponse> create(
             @Valid @RequestBody CreateEventRequest request) {
@@ -56,15 +56,21 @@ public class EventController {
         return ResponseEntity.ok(service.getMyEvents());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/manage")
+    public ResponseEntity<List<EventResponse>> getManageEvents() {
+        return ResponseEntity.ok(service.getManageEvents());
+    }
+
 
     @GetMapping("/search")
     public ResponseEntity<List<EventResponse>> searchByTitle(
-            @RequestParam String title) {
+            @RequestParam(required = false) String title) {
         return ResponseEntity.ok(service.searchByTitle(title));
     }
 
 
-    @PreAuthorize("hasRole('ORGANIZER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<EventResponse> update(
             @PathVariable UUID id,
@@ -75,13 +81,13 @@ public class EventController {
         return ResponseEntity.ok(updated);
     }
 
-    @PreAuthorize("hasRole('ORGANIZER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<EventResponse> delete(@PathVariable UUID id) {
 
-        service.deleteEvent(id);
+        EventResponse cancelled = service.deleteEvent(id);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(cancelled);
 
     }
 

@@ -16,9 +16,11 @@ public interface EventService {
 
     EventResponse updateEvent(UUID id, UpdateEventRequest request);
 
-    void deleteEvent(UUID id);
+    EventResponse deleteEvent(UUID id);
 
     List<EventResponse> getMyEvents();
+
+    List<EventResponse> getManageEvents();
 
     List<EventResponse> searchByTitle(String title);
 
