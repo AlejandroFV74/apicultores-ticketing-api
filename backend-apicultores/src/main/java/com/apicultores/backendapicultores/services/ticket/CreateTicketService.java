@@ -1,20 +1,17 @@
 package com.apicultores.backendapicultores.services.ticket;
 
+import com.apicultores.backendapicultores.common.enums.PaymentStatus;
 import com.apicultores.backendapicultores.common.enums.ReservationStatus;
-import com.apicultores.backendapicultores.common.util.BusinessConst;
+import com.apicultores.backendapicultores.common.enums.TicketStatus;
 import com.apicultores.backendapicultores.common.util.UtilsFunctions;
 import com.apicultores.backendapicultores.common.mappers.TicketMapper;
-import com.apicultores.backendapicultores.domain.dto.request.CreateTicketRequest;
 import com.apicultores.backendapicultores.domain.dto.response.ticket.TicketResponse;
 import com.apicultores.backendapicultores.domain.entity.Payment;
 import com.apicultores.backendapicultores.domain.entity.Reservation;
 import com.apicultores.backendapicultores.domain.entity.Seat;
 import com.apicultores.backendapicultores.domain.entity.Ticket;
 import com.apicultores.backendapicultores.exception.custom.*;
-import com.apicultores.backendapicultores.repository.PaymentRepository;
-import com.apicultores.backendapicultores.repository.ReservationRepository;
 import com.apicultores.backendapicultores.repository.TicketRepository;
-import com.apicultores.backendapicultores.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,19 +24,29 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class CreateTicketService {
-    UtilsFunctions functions;
+    private final UtilsFunctions functions;
     private final TicketRepository ticketRepository;
     private final TicketMapper ticketMapper;
-    private final ReservationRepository reservationRepository;
-    private final PaymentRepository paymentRepository;
-    private final UserRepository userRepository;
 
     @Transactional
-    public List<TicketResponse> generateTicketsForReservation(CreateTicketRequest ticketRequest){
-        Reservation reservation = reservationRepository.findById(ticketRequest.getReservationId())
-                .orElseThrow(()-> new ReservationNotFoundException("La reserva con dicho Id no se encuentra"));
+    public List<TicketResponse> generateTicketsForReservation(Reservation reservation,
+                                                              Payment payment){
 
-        long purchasedCount = ticketRepository.countTicketByUserAndEvent(ticketRequest.getUserId(),reservation.getEvent().getEventId());
+        List<Ticket> existingTickets = ticketRepository.findByReservationWithEagerLoad(
+                reservation.getReservationId()
+        );
+
+        if (!existingTickets.isEmpty()) {
+            return existingTickets.stream()
+                    .map(ticketMapper::toDto)
+                    .toList();
+        }
+
+        long purchasedCount = ticketRepository.countTicketByUserAndEvent(
+                reservation.getUser().getUserId(),
+                reservation.getEvent().getEventId(),
+                List.of(TicketStatus.USED, TicketStatus.PAID)
+        );
 
         long totalSeats = purchasedCount + reservation.getSeats().size();
 
@@ -47,11 +54,11 @@ public class CreateTicketService {
             throw new LimitSeatsException("Ya se compraron la máxima cantidad de asientos por persona para este evento");
         }
 
-        Payment payment = paymentRepository.findByReservationReservationId(reservation.getReservationId())
-                .orElseThrow(() -> new PaymentNotFoundException("No se encontró un pago asociado a esta reserva."));
-
-        if (reservation.getStatus() == ReservationStatus.EXPIRED){
-            throw new ReservationStatusException("La reserva expiró");
+        if (payment.getStatus() != PaymentStatus.COMPLETED){
+            throw new PaymentStatusException("El pago asociado a la reserva no ha sido completado.");
+        }
+        if (reservation.getStatus() != ReservationStatus.COMPLETED){
+            throw new ReservationStatusException("La reserva no ha sido pagada");
         }
 
         List<Seat> associatedSeats = reservation.getSeats();
@@ -59,12 +66,11 @@ public class CreateTicketService {
         if(associatedSeats.isEmpty()){
             throw new EmptySeatsReservationException("La reserva no contiene asientos");
         }
-        if (associatedSeats.size() > 3){
-            throw new LimitSeatsException("No se pueden reservar más de 3 asientos para el evento");
+        if (associatedSeats.size() > reservation.getEvent().getMaxTicketsPerUser()){
+            throw new LimitSeatsException("Limite de reserva excedido");
         }
 
         List<TicketResponse> ticketResponsesList = new ArrayList<>();
-
         for (Seat seat : associatedSeats){
             String QrTicket = functions.makeQRInfo(seat.getSeatNumber());
 

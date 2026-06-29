@@ -20,7 +20,7 @@ public class ReservationExpiryScheduler {
     private final ReservationExpiryService expiryService;
 
     // Corriendo siempre para prueba
-    @Scheduled(fixedDelayString = "${app.reservation.expiry-check-ms:5000}")
+    @Scheduled(fixedDelayString = "${app.reservation.expiry-check-ms:900000}")
     public void runExpiry() {
         try {
             var expired = expiryService.expireReservations();

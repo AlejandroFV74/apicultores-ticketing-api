@@ -1,5 +1,6 @@
 package com.apicultores.backendapicultores.services.ticket;
 
+import com.apicultores.backendapicultores.common.enums.TicketStatus;
 import com.apicultores.backendapicultores.common.mappers.TicketMapper;
 import com.apicultores.backendapicultores.domain.dto.response.ticket.TicketResponse;
 import com.apicultores.backendapicultores.domain.entity.Ticket;
@@ -25,8 +26,7 @@ public class GetTicketService {
     }
 
     public List<TicketResponse> getTicketsByOwnerId(UUID ownerId){
-        List<Ticket> tickets = ticketRepository.findByOwnerWithEagerLoad(ownerId)
-                .orElseThrow(() -> new TicketNotFoundException("El usuario no tiene tickets"));
+        List<Ticket> tickets = ticketRepository.findByOwnerAndStatus(ownerId, TicketStatus.PAID);
 
 
         return tickets.stream()
@@ -45,8 +45,7 @@ public class GetTicketService {
     }
 
     public List<TicketResponse> getActiveTicketByOwner(UUID uuid){
-        List<Ticket> tickets = ticketRepository.findActiveTicketsByOwner(uuid).
-                orElseThrow(() -> new TicketNotFoundException("No se han encontrado tickets Activos"));
+        List<Ticket> tickets = ticketRepository.findActiveTicketsByOwner(uuid, TicketStatus.PAID);
         return tickets.stream()
                 .map(ticketMapper::toDto)
                 .collect(Collectors.toList());

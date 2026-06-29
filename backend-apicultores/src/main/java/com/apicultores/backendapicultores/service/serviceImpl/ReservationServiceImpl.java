@@ -1,22 +1,15 @@
 package com.apicultores.backendapicultores.service.serviceImpl;
 
 import com.apicultores.backendapicultores.common.enums.ReservationStatus;
+import com.apicultores.backendapicultores.common.enums.SeatStatus;
 import com.apicultores.backendapicultores.common.mappers.ReservationMapper;
 import com.apicultores.backendapicultores.config.security.CurrentUserProvider;
 import com.apicultores.backendapicultores.domain.dto.request.CreateReservationRequest;
 import com.apicultores.backendapicultores.domain.dto.response.ReservationResponse;
-import com.apicultores.backendapicultores.domain.entity.Reservation;
-import com.apicultores.backendapicultores.domain.entity.Seat;
-import com.apicultores.backendapicultores.domain.entity.User;
-import com.apicultores.backendapicultores.exception.custom.BadRequestException;
-import com.apicultores.backendapicultores.exception.custom.ReservationNotFoundException;
-import com.apicultores.backendapicultores.exception.custom.UserNotFoundException;
+import com.apicultores.backendapicultores.domain.entity.*;
+import com.apicultores.backendapicultores.exception.custom.*;
 import com.apicultores.backendapicultores.domain.dto.request.UpdateReservationRequest;
-import com.apicultores.backendapicultores.domain.entity.ReservationStatusHistory;
-import com.apicultores.backendapicultores.repository.ReservationRepository;
-import com.apicultores.backendapicultores.repository.ReservationStatusHistoryRepository;
-import com.apicultores.backendapicultores.repository.SeatRepository;
-import com.apicultores.backendapicultores.repository.UserRepository;
+import com.apicultores.backendapicultores.repository.*;
 import com.apicultores.backendapicultores.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,14 +31,44 @@ public class ReservationServiceImpl implements ReservationService {
     private final UserRepository userRepository;
     private final ReservationRepository reservationRepository;
     private final ReservationStatusHistoryRepository reservationStatusHistoryRepository;
+    private final EventRepository eventRepository;
     private final Clock clock;
 
     @Override
     @Transactional
     public ReservationResponse createReservation(CreateReservationRequest request){
+        Event event = eventRepository.findById(request.getEventId())
+                .orElseThrow(() ->
+                        new EventNotFoundException("Event not found"));
+
         List<Seat> seats = seatRepository.findAllById(
                 request.getSeatsIds()
         );
+
+        for (Seat seat : seats) {
+
+            if (!seat.getEvent().getEventId().equals(event.getEventId())) {
+
+                throw new IllegalArgumentException(
+                        "Seat does not belong to the event");
+            }
+
+        }
+
+        for (Seat seat : seats) {
+            if (seat.getStatus() != SeatStatus.AVAILABLE) {
+                throw new SeatUnavailableException(
+                        "Seat " + seat.getSeatNumber() + " is not available");
+            }
+        }
+
+        // Marcar como reservados
+        for (Seat seat : seats) {
+            seat.setStatus(SeatStatus.RESERVED);
+        }
+
+        seatRepository.saveAll(seats);
+
         UUID userId = currentUserProvider.getCurrentUserId();
 
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
@@ -53,7 +76,8 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation =
                 reservationMapper.toEntityCreate(
                         user,
-                        seats
+                        seats,
+                        event
                 );
         Reservation saved = reservationRepository.save(reservation);
 
@@ -136,9 +160,16 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    @Transactional
     public void deleteReservation(UUID reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationNotFoundException("La reserva con dicho Id no se encuentra"));
+
+        for (Seat seat : reservation.getSeats()) {
+            seat.setStatus(SeatStatus.AVAILABLE);
+        }
+
+        seatRepository.saveAll(reservation.getSeats());
         reservationRepository.delete(reservation);
     }
 }

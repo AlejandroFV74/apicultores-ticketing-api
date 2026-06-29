@@ -128,25 +128,21 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
-    @ExceptionHandler(SeatNotAvailableException.class)
-    public ResponseEntity<ApiErrorResponse> handleSeatNotAvailable(SeatNotAvailableException e){
-        return buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
-    }
-
-    @ExceptionHandler(AlreadyInWaitlistException.class)
-    public ResponseEntity<ApiErrorResponse> handleAlreadyInWaitlist(AlreadyInWaitlistException e){
-        return buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
-    }
-
-    @ExceptionHandler(WaitlistNotFoundException.class)
-    public ResponseEntity<ApiErrorResponse> handleWaitlistNotFound(WaitlistNotFoundException e){
+    @ExceptionHandler(EventNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleEventNotFoundException(EventNotFoundException e) {
         return buildErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
     }
 
-    @ExceptionHandler(InvalidDiscountException.class)
-    public ResponseEntity<ApiErrorResponse> handleInvalidDiscount(InvalidDiscountException e){
+    @ExceptionHandler(SeatUnavailableException.class)
+    public ResponseEntity<ApiErrorResponse> handleSeatUnavailableException(SeatUnavailableException e) {
+        return buildErrorResponse(HttpStatus.SERVICE_UNAVAILABLE, e.getMessage());
+    }
+
+    @ExceptionHandler(PaymentStatusException.class)
+    public ResponseEntity<ApiErrorResponse> handlePaymentStatusException(PaymentStatusException e) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
+
 
     private ResponseEntity<ApiErrorResponse> buildErrorResponse(HttpStatus status, Object data) {
         String uri = ServletUriComponentsBuilder.fromCurrentRequestUri().build().getPath();

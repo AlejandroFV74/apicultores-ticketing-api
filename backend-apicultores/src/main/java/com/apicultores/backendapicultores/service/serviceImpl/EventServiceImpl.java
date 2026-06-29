@@ -51,8 +51,23 @@ public class EventServiceImpl implements EventService {
             throw new BadRequestException("La fecha de inicio debe ser anterior a la fecha de fin");
         }
 
-        if (request.getSeats() == null || request.getSeats().isEmpty()) {
-            throw new BadRequestException("Debe incluir al menos una configuración de asientos");
+        if (request.getSeatingConfig() == null) {
+            throw new BadRequestException("La configuración de asientos es obligatoria");
+        }
+
+        int totalSeats = request.getSeatingConfig().getVipSeats() + 
+                        request.getSeatingConfig().getGeneralSeats();
+        
+        if (totalSeats != 560) {
+            throw new BadRequestException("El total de asientos debe ser exactamente 560. Recibido: " + totalSeats);
+        }
+
+        if (request.getSeatingConfig().getVipSeats() < 0 || request.getSeatingConfig().getGeneralSeats() < 0) {
+            throw new BadRequestException("La cantidad de asientos no puede ser negativa");
+        }
+
+        if (request.getSeatingConfig().getVipPrice() < 0 || request.getSeatingConfig().getGeneralPrice() < 0) {
+            throw new BadRequestException("El precio no puede ser negativo");
         }
 
         UUID userId = currentUserProvider.getCurrentUserId();
@@ -64,33 +79,30 @@ public class EventServiceImpl implements EventService {
 
         List<Seat> seats = new ArrayList<>();
 
-        for (SeatConfigurationRequest seatConfig : request.getSeats()) {
+        // Create VIP seats
+        for (int i = 1; i <= request.getSeatingConfig().getVipSeats(); i++) {
+            Seat seat = Seat.builder()
+                    .event(savedEvent)
+                    .seatNumber("VIP-" + i)
+                    .seatType(com.apicultores.backendapicultores.common.enums.SeatType.VIP)
+                    .price(request.getSeatingConfig().getVipPrice())
+                    .status(SeatStatus.AVAILABLE)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            seats.add(seat);
+        }
 
-            if (seatConfig.getQuantity() == null || seatConfig.getQuantity() <= 0) {
-                throw new BadRequestException("La cantidad de asientos debe ser mayor a 0");
-            }
-
-            if (seatConfig.getPrice() == null || seatConfig.getPrice() < 0) {
-                throw new BadRequestException("El precio no puede ser negativo");
-            }
-
-            if (seatConfig.getSeatType() == null) {
-                throw new BadRequestException("El tipo de asiento es obligatorio");
-            }
-
-            for (int i = 1; i <= seatConfig.getQuantity(); i++) {
-
-                Seat seat = Seat.builder()
-                        .event(savedEvent)
-                        .seatNumber(seatConfig.getSeatType().name() + "-" + i)
-                        .seatType(seatConfig.getSeatType())
-                        .price(seatConfig.getPrice())
-                        .status(SeatStatus.AVAILABLE)
-                        .createdAt(LocalDateTime.now())
-                        .build();
-
-                seats.add(seat);
-            }
+        // Create GENERAL seats
+        for (int i = 1; i <= request.getSeatingConfig().getGeneralSeats(); i++) {
+            Seat seat = Seat.builder()
+                    .event(savedEvent)
+                    .seatNumber("GENERAL-" + i)
+                    .seatType(com.apicultores.backendapicultores.common.enums.SeatType.GENERAL)
+                    .price(request.getSeatingConfig().getGeneralPrice())
+                    .status(SeatStatus.AVAILABLE)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            seats.add(seat);
         }
 
         seatRepository.saveAll(seats);

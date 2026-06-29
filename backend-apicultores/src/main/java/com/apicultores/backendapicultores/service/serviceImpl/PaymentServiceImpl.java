@@ -1,6 +1,5 @@
 package com.apicultores.backendapicultores.service.serviceImpl;
 
-import com.apicultores.backendapicultores.common.enums.ReservationStatus;
 import com.apicultores.backendapicultores.common.mappers.PaymentMapper;
 import com.apicultores.backendapicultores.domain.dto.request.PaymentRequest;
 import com.apicultores.backendapicultores.domain.dto.response.PaymentResponse;
@@ -10,12 +9,12 @@ import com.apicultores.backendapicultores.exception.custom.BadRequestException;
 import com.apicultores.backendapicultores.exception.custom.ResourceNotFoundException;
 import com.apicultores.backendapicultores.repository.PaymentRepository;
 import com.apicultores.backendapicultores.repository.ReservationRepository;
+import com.apicultores.backendapicultores.service.CheckoutService;
 import com.apicultores.backendapicultores.service.PaymentService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,6 +25,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final ReservationRepository reservationRepository;
     private final PaymentMapper paymentMapper;
+    private final CheckoutService checkoutService;
 
     @Override
     @Transactional
@@ -41,11 +41,13 @@ public class PaymentServiceImpl implements PaymentService {
                 });
 
         Payment payment = paymentMapper.toEntityCreate(request, reservation);
+        Payment savedPayment = paymentRepository.save(payment);
 
-        reservation.setStatus(ReservationStatus.ACTIVE);
-        reservationRepository.save(reservation);
+        if (!"STRIPE".equalsIgnoreCase(savedPayment.getProvider())) {
+            checkoutService.confirmCheckout(savedPayment.getPaymentId());
+        }
 
-        return paymentMapper.toDto(paymentRepository.save(payment));
+        return paymentMapper.toDto(savedPayment);
     }
 
     @Override
@@ -82,21 +84,17 @@ public class PaymentServiceImpl implements PaymentService {
             throw new BadRequestException("La reserva es obligatoria");
         }
 
-        if (request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BadRequestException("El monto debe ser mayor a cero");
-        }
-
         if (isBlank(request.getPaymentMethod())) {
             throw new BadRequestException("El metodo de pago es obligatorio");
         }
 
-        if (isBlank(request.getProvider())) {
-            throw new BadRequestException("El proveedor es obligatorio");
-        }
-
-        if (isBlank(request.getProviderReference())) {
-            throw new BadRequestException("La referencia del proveedor es obligatoria");
-        }
+//        if (isBlank(request.getProvider())) {
+//            throw new BadRequestException("El proveedor es obligatorio");
+//        }
+//
+//        if (isBlank(request.getProviderReference())) {
+//            throw new BadRequestException("La referencia del proveedor es obligatoria");
+//        }
     }
 
     private boolean isBlank(String value) {
