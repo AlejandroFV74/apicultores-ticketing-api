@@ -31,4 +31,18 @@ public class CurrentUserProvider {
 
         return UUID.fromString(userIdString);
     }
+
+    public String getCurrentUserRole() {
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("No token provided");
+        }
+
+        return jwtUtil.extractRole(authHeader.substring(7));
+    }
+
+    public boolean isCurrentUserAdmin() {
+        return "ADMIN".equals(getCurrentUserRole());
+    }
 }
