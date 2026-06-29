@@ -34,4 +34,6 @@ public interface SeatRepository extends JpaRepository<Seat, UUID> {
   
     @EntityGraph(attributePaths = {"event"})
     List<Seat> findByEventEventId(UUID eventId);
+
+    List<Seat> findByEvent_EventId(UUID id);
 }
