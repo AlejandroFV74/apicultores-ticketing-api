@@ -66,6 +66,15 @@ public interface TicketRepository extends JpaRepository<Ticket, UUID> {
     List<Ticket> findByReservationWithEagerLoad(@Param("reservationId") UUID reservationId);
 
     @Query("""
+        SELECT DISTINCT t FROM Ticket t
+        JOIN FETCH t.seat s
+        JOIN FETCH s.event
+        JOIN FETCH t.owner
+        WHERE t.payment.paymentId = :paymentId
+    """)
+    List<Ticket> findByPaymentWithEagerLoad(@Param("paymentId") UUID paymentId);
+
+    @Query("""
     SELECT DISTINCT t FROM Ticket t
     JOIN FETCH t.seat s
     JOIN FETCH s.event

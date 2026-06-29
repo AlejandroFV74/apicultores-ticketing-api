@@ -6,9 +6,13 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 public class CreateEventRequest {
+    @NotNull(message = "El organizador es obligatorio")
+    private UUID organizerId;
+
     @NotBlank
     private String title;
 

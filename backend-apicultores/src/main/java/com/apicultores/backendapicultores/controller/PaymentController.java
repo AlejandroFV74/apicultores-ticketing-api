@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -30,6 +31,7 @@ public class PaymentController {
     private final StripeService stripeService;
     private final CheckoutService checkoutService;
 
+    @PreAuthorize("hasRole('BUYER')")
     @PostMapping
     public ResponseEntity<GeneralResponse> createPayment(@RequestBody PaymentRequest request) {
         return buildResponse(
@@ -39,6 +41,7 @@ public class PaymentController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<GeneralResponse> getAllPayments() {
         return buildResponse(
@@ -48,6 +51,7 @@ public class PaymentController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{paymentId}")
     public ResponseEntity<GeneralResponse> getPaymentById(@PathVariable UUID paymentId) {
         return buildResponse(
@@ -57,6 +61,7 @@ public class PaymentController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/reservation/{reservationId}")
     public ResponseEntity<GeneralResponse> getPaymentByReservationId(@PathVariable UUID reservationId) {
         return buildResponse(
@@ -66,6 +71,7 @@ public class PaymentController {
         );
     }
 
+    @PreAuthorize("hasRole('BUYER')")
     @GetMapping("/checkout/{paymentId}")
     public ResponseEntity<Void> redirectToStripeCheckout(@PathVariable UUID paymentId) throws StripeException {
         Payment payment = paymentRepository.findById(paymentId)

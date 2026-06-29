@@ -5,6 +5,7 @@ import com.apicultores.backendapicultores.service.serviceImpl.ReservationExpiryS
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +21,7 @@ public class AdminReservationController {
 
     private final ReservationExpiryService expiryService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/expire-now")
     public ResponseEntity<GeneralResponse> expireNow(){
         var expired = expiryService.expireReservations();

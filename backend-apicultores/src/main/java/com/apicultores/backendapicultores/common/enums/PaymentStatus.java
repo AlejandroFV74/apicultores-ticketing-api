@@ -1,5 +1,5 @@
 package com.apicultores.backendapicultores.common.enums;
 
 public enum PaymentStatus {
-    COMPLETED, FAILED, REFUNDED, PENDING
+    COMPLETED, FAILED, REFUNDED, PARTIALLY_REFUNDED, PENDING
 }
