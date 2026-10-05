@@ -4,6 +4,8 @@ API REST para la gestión de eventos, usuarios, reservas y compra de entradas, d
 
 El proyecto forma parte de un sistema de ticketing compuesto por **Frontend + Backend + Base de Datos**, siguiendo una arquitectura monolítica a nivel de solución y una arquitectura **N-Capas** para el backend.
 
+---
+
 ## 📌 Descripción
 
 El sistema permite administrar el proceso de venta y control de entradas para eventos, incluyendo:
@@ -24,11 +26,13 @@ El sistema permite administrar el proceso de venta y control de entradas para ev
 
 El backend expone una **API REST** consumida por el frontend de la aplicación.
 
+---
 
 ## 🏗️ Arquitectura
 
 El backend utiliza una arquitectura **N-Capas**, buscando separar las responsabilidades de cada componente y evitar que la lógica de negocio quede concentrada en los controladores.
 
+```text
 ┌──────────────────────────────────────────┐
 │              Cliente / Frontend          │
 │          React / Angular / HTTP          │
@@ -57,6 +61,7 @@ El backend utiliza una arquitectura **N-Capas**, buscando separar las responsabi
 │              PostgreSQL                  │
 │             Base de datos                │
 └──────────────────────────────────────────┘
+```
 
 ### Principios aplicados
 
@@ -97,6 +102,7 @@ La arquitectura N-Capas es parte de la estructura definida para el backend del p
 
 La estructura está organizada por responsabilidades para mantener el código desacoplado y facilitar su mantenimiento.
 
+```text
 src/
 └── main/
     ├── java/
@@ -115,6 +121,7 @@ src/
     └── resources/
         ├── application.properties
         └── ...
+```
 
 ### Responsabilidad de las capas
 
@@ -150,6 +157,7 @@ Contiene los componentes relacionados con autenticación, autorización y JWT.
 
 Centraliza las excepciones y respuestas de error de la API.
 
+---
 
 # 🔐 Autenticación y autorización
 
@@ -157,6 +165,7 @@ El sistema utiliza **JWT (JSON Web Token)** para autenticar a los usuarios.
 
 El flujo general es:
 
+```text
 Usuario
    │
    ▼
@@ -182,6 +191,7 @@ Validación del token
    │
    ▼
 Acceso al recurso protegido
+```
 
 Los roles principales definidos para el sistema son:
 
@@ -231,6 +241,7 @@ Cada ticket mantiene información relacionada con:
 
 ### Estados principales
 
+```text
 AVAILABLE
     │
     ▼
@@ -241,11 +252,14 @@ PAID
     │
     ▼
 USED
+```
 
 También se contemplan estados relacionados con:
 
+```text
 REFUNDED
 TRANSFERRED
+```
 
 El diseño funcional del proyecto contempla los estados `Disponible`, `Reservado`, `Usado`, `Reembolsado` y `Transferido`.
 
@@ -259,24 +273,29 @@ Cuando un usuario selecciona determinados asientos, estos pueden quedar reservad
 
 ### Tiempo de reserva
 
+```text
 15 minutos
+```
 
 El backend utiliza un proceso programado para detectar y procesar reservas expiradas.
 
 Configuración utilizada:
 
-properties
+```properties
 app.reservation.expiry-check-ms=300000
+```
 
 Esto permite ejecutar periódicamente el proceso de expiración sin depender exclusivamente del temporizador del frontend.
 
 ### Estados de una reserva
 
+```text
 ACTIVE
    │
    ├──► CONFIRMED
    │
    └──► EXPIRED
+```
 
 La especificación del proyecto contempla reservas activas, expiradas y confirmadas.
 
@@ -284,7 +303,7 @@ La especificación del proyecto contempla reservas activas, expiradas y confirma
 
 # 🔄 Flujo de reserva
 
-
+```text
 1. Usuario selecciona asientos
           │
           ▼
@@ -309,7 +328,7 @@ La especificación del proyecto contempla reservas activas, expiradas y confirma
        │     │
        ▼     ▼
    Confirmado Disponible
-
+```
 
 Esto permite evitar que dos usuarios puedan adquirir simultáneamente los mismos asientos.
 
@@ -339,7 +358,7 @@ El QR permite identificar el ticket durante el proceso de ingreso al evento.
 
 Flujo:
 
-
+```text
 Compra confirmada
        │
        ▼
@@ -359,7 +378,7 @@ Validación
        │
        ▼
 Acceso permitido / rechazado
-
+```
 
 La generación y validación de códigos QR forman parte del módulo de control de acceso definido para el backend.
 
@@ -833,6 +852,49 @@ Las variables de entorno permiten utilizar diferentes configuraciones para desar
 * [ ] Pruebas automatizadas completas.
 * [ ] Documentación OpenAPI completa, si aún no está incorporada.
 
+> Este listado debe actualizarse conforme se incorporen nuevas funcionalidades al repositorio.
+
+---
+
+# 👨‍💻 Equipo y distribución
+
+El proyecto se divide en módulos funcionales:
+
+### Integrante 1 — Gestión de eventos
+
+* CRUD de eventos.
+* Localidades.
+* Aforo.
+* Fechas.
+* Precios.
+
+### Integrante 2 — Compras y reservas
+
+* Reserva temporal.
+* Compra.
+* Límite por usuario.
+* Lista de espera.
+* Transferencia.
+
+### Integrante 3 — Validación y QR
+
+* Generación de QR.
+* Validación de tickets.
+* Control de acceso.
+* Reglas desacopladas para validación.
+
+### Integrante 4 — Usuarios y funcionalidades avanzadas
+
+* Usuarios y roles.
+* Reembolsos.
+* Descuentos.
+* Historial.
+* Reportes.
+* Notificaciones.
+
+La distribución de responsabilidades está definida por módulos dentro del proyecto.
+
+---
 
 # 🌿 Estrategia de ramas
 
@@ -854,6 +916,12 @@ Las ramas permiten desarrollar funcionalidades independientemente y posteriormen
 # 📄 Licencia
 
 Este proyecto fue desarrollado con fines académicos como parte del desarrollo de un sistema de ticketing para eventos.
+
+Si posteriormente se desea distribuir el proyecto públicamente, se recomienda agregar una licencia específica, por ejemplo:
+
+```text
+MIT License
+```
 
 ---
 
@@ -896,4 +964,3 @@ Ingreso al evento
 ```
 
 El proyecto busca aplicar conceptos de desarrollo backend, arquitectura de software, persistencia de datos, seguridad, manejo de concurrencia y diseño de APIs REST en un sistema de negocio realista.
-
